@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CA Study Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f8f7f4;--surface:#ffffff;--surface2:#f2f0ec;--border:#e4e0d8;--border2:#d4cfc5;
+  --text:#1a1816;--text2:#5a5650;--text3:#9a958e;
+  --accent:#2d6a4f;--accent2:#40916c;--accent-bg:#e8f5ee;
+  --warn:#b5451b;--warn-bg:#fdf0eb;--amber:#8b5a00;--amber-bg:#fff8e6;
+  --radius:10px;--radius-lg:16px;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6}
+
+/* ── SETUP ── */
+#setup-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#e8f5ee 0%,#f8f7f4 50%,#e8f0f9 100%);padding:2rem}
+.setup-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2.75rem;max-width:500px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,0.08)}
+.setup-logo{font-family:'Lora',serif;font-size:12px;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:1.5rem}
+.setup-title{font-family:'Lora',serif;font-size:28px;font-weight:500;color:var(--text);line-height:1.3;margin-bottom:.4rem}
+.setup-sub{font-size:13px;color:var(--text2);margin-bottom:1.75rem}
+.setup-field{margin-bottom:1.1rem}
+.setup-field label{display:block;font-size:11px;font-weight:500;color:var(--text2);margin-bottom:5px;letter-spacing:.05em;text-transform:uppercase}
+.setup-field input,.setup-field select{width:100%;padding:10px 13px;border:1px solid var(--border2);border-radius:var(--radius);font-size:14px;font-family:'Inter',sans-serif;color:var(--text);background:var(--bg);outline:none;transition:border-color .2s}
+.setup-field input:focus,.setup-field select:focus{border-color:var(--accent2)}
+.toggle-row{display:flex;gap:.4rem;margin-bottom:1.1rem}
+.toggle-btn{flex:1;padding:9px 8px;border:1px solid var(--border2);border-radius:8px;background:var(--surface);font-size:12px;font-family:'Inter',sans-serif;cursor:pointer;color:var(--text2);transition:all .2s;text-align:center}
+.toggle-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.toggle-btn.active-soft{background:var(--accent-bg);color:var(--accent);border-color:var(--accent2);font-weight:500}
+.btn-primary{width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:background .2s;margin-top:1.1rem}
+.btn-primary:hover{background:var(--accent2)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.setup-note{font-size:11px;color:var(--text3);margin-top:.75rem;text-align:center}
+.setup-divider{height:1px;background:var(--border);margin:1.1rem 0}
+
+/* ── APP SHELL ── */
+#app{display:none;min-height:100vh}
+.bg-wrap{position:fixed;inset:0;z-index:0}
+.bg-img{width:100%;height:100%;object-fit:cover;filter:brightness(.32) saturate(.8)}
+.bg-overlay{position:absolute;inset:0;background:rgba(245,242,236,.89)}
+.app-layout{position:relative;z-index:1;display:flex;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{width:264px;min-height:100vh;background:rgba(255,255,255,.93);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-header{padding:1.1rem 1.1rem .7rem;border-bottom:1px solid var(--border)}
+.sidebar-logo{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:2px}
+.sidebar-title{font-family:'Lora',serif;font-size:15px;font-weight:500;color:var(--text);line-height:1.3}
+.sidebar-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.sidebar-settings-btn{font-size:10px;color:var(--accent);cursor:pointer;margin-top:4px;background:none;border:none;padding:0;font-family:'Inter',sans-serif;text-decoration:underline}
+.sidebar-nav{padding:.6rem .6rem 0;flex:1}
+.nav-label{font-size:10px;font-weight:500;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;padding:0 .5rem;margin-bottom:.2rem;margin-top:.6rem}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;transition:background .15s;font-size:13px;color:var(--text2);border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--surface2)}
+.nav-item.active{background:var(--accent-bg);color:var(--accent)}
+.nav-icon{font-size:14px;width:18px;text-align:center;opacity:.8}
+.nav-pill{font-size:10px;background:var(--surface2);color:var(--text3);padding:1px 6px;border-radius:20px;margin-left:auto}
+.nav-item.active .nav-pill{background:var(--accent-bg);color:var(--accent)}
+.sidebar-bottom{padding:.7rem;border-top:1px solid var(--border)}
+.countdown-box{background:var(--surface2);border-radius:var(--radius);padding:.7rem;text-align:center}
+.countdown-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.countdown-days{font-size:30px;font-weight:300;color:var(--accent);font-family:'Lora',serif;line-height:1}
+.countdown-sub{font-size:10px;color:var(--text3);margin-top:2px}
+.attempt-tag{font-size:11px;color:var(--text2);margin-top:4px}
+
+/* ── MAIN ── */
+.main{flex:1;padding:1.5rem;min-height:100vh;overflow-y:auto}
+.section-card{background:rgba(255,255,255,.94);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem}
+.section-title{font-family:'Lora',serif;font-size:18px;font-weight:500;color:var(--text);margin-bottom:.25rem}
+.section-sub{font-size:12px;color:var(--text3);margin-bottom:1rem}
+
+/* ── DASHBOARD ── */
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin-bottom:1rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.875rem 1rem}
+.stat-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.stat-val{font-size:22px;font-weight:300;font-family:'Lora',serif;color:var(--text)}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.subj-row{display:flex;align-items:center;gap:.75rem;padding:.6rem .75rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.45rem;cursor:pointer;transition:border-color .15s}
+.subj-row:hover{border-color:var(--border2)}
+.subj-name{font-size:13px;font-weight:500;color:var(--text);flex:1}
+.progress-bar-wrap{flex:1;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;max-width:120px}
+.progress-bar{height:100%;background:var(--accent2);border-radius:3px;transition:width .4s}
+.subj-pct{font-size:12px;color:var(--text2);min-width:32px;text-align:right}
+.tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500}
+.badge-g1{background:#e8f5ee;color:#2d6a4f}
+.badge-g2{background:#eaf0f9;color:#1d4e89}
+
+/* ── SUBJECT TRACKER ── */
+.subject-header{display:flex;align-items:flex-start;gap:.75rem;margin-bottom:1rem}
+.subject-title{font-family:'Lora',serif;font-size:20px;font-weight:500;color:var(--text);flex:1}
+.module-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);padding:.5rem 0 .35rem;border-bottom:1px solid var(--border);margin-bottom:.45rem}
+.chapter-row{border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.35rem;overflow:hidden}
+.chapter-head{display:flex;align-items:center;gap:.7rem;padding:.55rem .875rem;background:var(--surface);cursor:pointer;transition:background .15s}
+.chapter-head:hover{background:var(--surface2)}
+.ch-expand{font-size:11px;color:var(--text3);transition:transform .2s;width:12px;flex-shrink:0;display:inline-block}
+.ch-expand.open{transform:rotate(90deg)}
+.ch-name{font-size:13px;font-weight:500;color:var(--text);flex:1}
+.ch-controls{display:flex;align-items:center;gap:.55rem;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
+.status-sel{font-size:11px;padding:3px 7px;border:1px solid var(--border2);border-radius:6px;background:var(--bg);color:var(--text);cursor:pointer;outline:none;font-family:'Inter',sans-serif}
+.status-0{color:var(--text3);border-color:var(--border)}
+.status-1{color:var(--amber);border-color:var(--amber);background:var(--amber-bg)}
+.status-2{color:var(--accent);border-color:var(--accent2);background:var(--accent-bg)}
+.pct-slider{width:68px;accent-color:var(--accent2)}
+.rev-btn{font-size:10px;padding:2px 7px;border-radius:20px;border:1px solid var(--border2);background:none;cursor:pointer;color:var(--text3);transition:all .15s;font-family:'Inter',sans-serif;white-space:nowrap}
+.rev-btn.flagged{background:var(--warn-bg);color:var(--warn);border-color:var(--warn)}
+.start-btn{font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid var(--accent2);background:none;cursor:pointer;color:var(--accent);transition:all .15s;font-family:'Inter',sans-serif;white-space:nowrap}
+.start-btn:hover{background:var(--accent-bg)}
+.unit-rows{background:var(--surface2);border-top:1px solid var(--border)}
+.unit-row{display:flex;align-items:center;gap:.7rem;padding:.45rem .875rem .45rem 2rem;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.unit-row:last-child{border-bottom:none}
+.unit-name{font-size:12px;color:var(--text2);flex:1}
+.notes-input{width:100%;padding:.45rem .875rem;border:none;border-top:1px solid var(--border);font-size:12px;color:var(--text2);background:rgba(242,240,236,.6);font-family:'Inter',sans-serif;outline:none;resize:none}
+
+/* ── SESSIONS ── */
+.session-item{display:flex;align-items:center;gap:.75rem;padding:.5rem .75rem;border-bottom:1px solid var(--border);font-size:12px}
+.session-item:last-child{border-bottom:none}
+.session-subj{font-weight:500;color:var(--text);min-width:100px}
+.session-ch{flex:1;color:var(--text2)}
+.session-dur{color:var(--text3);min-width:48px;text-align:right}
+.session-date{color:var(--text3);min-width:60px;text-align:right}
+
+/* ── TOOLS ── */
+.tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.tool-card{background:rgba(255,255,255,.94);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem}
+.tool-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:.875rem}
+.clock-display{font-family:'Lora',serif;font-size:46px;font-weight:300;color:var(--text);text-align:center;letter-spacing:.04em;margin:.7rem 0}
+.clock-sub{font-size:11px;color:var(--text3);text-align:center;margin-bottom:.875rem}
+.tool-controls{display:flex;gap:.45rem;justify-content:center;flex-wrap:wrap}
+.btn-tool{padding:7px 13px;border-radius:8px;font-size:12px;font-family:'Inter',sans-serif;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--text);transition:all .15s;font-weight:500}
+.btn-tool:hover{background:var(--surface2)}
+.btn-tool.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-tool.primary:hover{background:var(--accent2)}
+.log-sel{width:100%;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);font-size:12px;font-family:'Inter',sans-serif;color:var(--text);background:var(--bg);outline:none;margin-bottom:.45rem}
+/* Pomodoro */
+.pomo-mode{display:flex;gap:.35rem;margin-bottom:.8rem;justify-content:center}
+.pomo-tab{padding:5px 10px;border-radius:20px;font-size:11px;cursor:pointer;border:1px solid var(--border2);background:none;font-family:'Inter',sans-serif;color:var(--text2);transition:all .15s}
+.pomo-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.pomo-ring{position:relative;width:140px;height:140px;margin:0 auto .8rem}
+.pomo-ring svg{transform:rotate(-90deg)}
+.pomo-ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Lora',serif}
+.pomo-time{font-size:30px;font-weight:300;color:var(--text);line-height:1}
+.pomo-phase{font-size:10px;color:var(--text3);margin-top:3px}
+.pomo-count{font-size:11px;color:var(--text2);text-align:center;margin-bottom:.7rem}
+.pomo-settings{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-top:.875rem;padding-top:.875rem;border-top:1px solid var(--border)}
+.pomo-setting-field{text-align:center}
+.pomo-setting-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.pomo-setting-row{display:flex;align-items:center;justify-content:center;gap:4px}
+.pomo-adj{padding:2px 7px;border-radius:6px;border:1px solid var(--border2);background:none;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;color:var(--text2);transition:all .15s}
+.pomo-adj:hover{background:var(--surface2)}
+.pomo-val{font-size:14px;font-family:'Lora',serif;font-weight:400;color:var(--text);min-width:30px;text-align:center}
+
+/* ── MUSIC ── */
+.music-card{background:rgba(255,255,255,.94);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem}
+.ambient-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;margin-bottom:.875rem}
+.ambient-btn{padding:.6rem .45rem;border:1px solid var(--border2);border-radius:8px;background:var(--surface);cursor:pointer;font-size:11px;color:var(--text2);font-family:'Inter',sans-serif;text-align:center;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:3px}
+.ambient-btn:hover{background:var(--surface2)}
+.ambient-btn.playing{background:var(--accent-bg);color:var(--accent);border-color:var(--accent2)}
+.ambient-icon{font-size:19px}
+.vol-row{display:flex;align-items:center;gap:.75rem}
+.vol-label{font-size:11px;color:var(--text3);min-width:42px}
+.vol-slider{flex:1;accent-color:var(--accent2)}
+.yt-block{margin-bottom:.875rem}
+.yt-block:last-child{margin-bottom:0}
+.yt-label{font-size:11px;color:var(--text3);margin-bottom:.45rem}
+.yt-embed{width:100%;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border)}
+.yt-embed iframe{display:block;width:100%}
+
+/* ── REVISION ── */
+.rev-item{display:flex;align-items:center;gap:.75rem;padding:.75rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.35rem}
+.rev-subj-tag{font-size:10px;padding:2px 7px;border-radius:20px;background:var(--surface2);color:var(--text3);white-space:nowrap;font-weight:500}
+.rev-ch-name{font-size:13px;font-weight:500;color:var(--text);flex:1}
+.unflag-btn{font-size:10px;padding:2px 8px;border-radius:20px;border:1px solid var(--border2);background:none;cursor:pointer;color:var(--text3);font-family:'Inter',sans-serif;transition:all .15s;white-space:nowrap}
+.unflag-btn:hover{color:var(--warn);border-color:var(--warn)}
+
+/* ── MODAL (settings) ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;display:flex;align-items:center;justify-content:center}
+.modal-card{background:var(--surface);border-radius:var(--radius-lg);padding:2rem;max-width:440px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.15)}
+.modal-title{font-family:'Lora',serif;font-size:18px;font-weight:500;margin-bottom:1.25rem}
+.modal-field{margin-bottom:.875rem}
+.modal-field label{display:block;font-size:11px;font-weight:500;color:var(--text2);margin-bottom:5px;letter-spacing:.04em;text-transform:uppercase}
+.modal-field input,.modal-field select{width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;font-family:'Inter',sans-serif;color:var(--text);background:var(--bg);outline:none}
+.modal-field input:focus,.modal-field select:focus{border-color:var(--accent2)}
+.modal-toggle{display:flex;gap:.35rem;margin-bottom:.875rem}
+.modal-btns{display:flex;gap:.5rem;margin-top:1.25rem}
+.btn-modal-save{flex:1;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-modal-save:hover{background:var(--accent2)}
+.btn-modal-cancel{padding:10px 16px;background:none;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--text2)}
+.modal-warn{font-size:11px;color:var(--warn);margin-top:.5rem}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--text);color:#fff;padding:.75rem 1.25rem;border-radius:var(--radius);font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.empty{font-size:13px;color:var(--text3);text-align:center;padding:2rem}
+</style>
+</head>
+<body>
+
+<!-- ══ SETUP SCREEN ══ -->
+<div id="setup-screen">
+  <div class="setup-card">
+    <div class="setup-logo">Institute of Chartered Accountants of India</div>
+    <div class="setup-title" id="setup-title">CA Study Tracker</div>
+    <div class="setup-sub">Track your preparation, chapter by chapter.</div>
+
+    <div class="setup-field">
+      <label>Course</label>
+      <div class="toggle-row" id="course-toggle">
+        <button class="toggle-btn active" id="btn-final" onclick="setCourse('Final')">CA Final</button>
+        <button class="toggle-btn" id="btn-inter" onclick="setCourse('Inter')">CA Inter</button>
+      </div>
+    </div>
+
+    <div class="setup-field" id="group-field">
+      <label>Group</label>
+      <div class="toggle-row" id="group-toggle">
+        <button class="toggle-btn active-soft" id="grp-both" onclick="setGroup('Both')">Both Groups</button>
+        <button class="toggle-btn" id="grp-1" onclick="setGroup('Group 1')">Group 1</button>
+        <button class="toggle-btn" id="grp-2" onclick="setGroup('Group 2')">Group 2</button>
+      </div>
+    </div>
+
+    <div class="setup-divider"></div>
+
+    <div class="setup-field">
+      <label>Your name</label>
+      <input type="text" id="setup-name" placeholder="e.g. Priya Sharma" maxlength="40" oninput="checkSetup()">
+    </div>
+
+    <div class="setup-field">
+      <label>Exam attempt</label>
+      <select id="setup-attempt" onchange="checkSetup()">
+        <option value="">— Select attempt —</option>
+        <option value="Nov 2026">Nov 2026</option>
+        <option value="May 2027">May 2027</option>
+        <option value="Nov 2027">Nov 2027</option>
+      </select>
+    </div>
+
+    <button class="btn-primary" id="setup-btn" onclick="startApp()" disabled>Begin tracking →</button>
+    <div class="setup-note">Progress is saved locally in your browser and synced to cloud if available.</div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app">
+  <div class="bg-wrap">
+    <img class="bg-img" src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=1600&q=80" alt="">
+    <div class="bg-overlay"></div>
+  </div>
+  <div class="app-layout">
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo" id="sb-logo">CA Study Tracker</div>
+        <div class="sidebar-title" id="sb-name">Dashboard</div>
+        <div class="sidebar-meta" id="sb-meta"></div>
+        <button class="sidebar-settings-btn" onclick="openSettings()">⚙ Change settings</button>
+      </div>
+      <div class="sidebar-nav" id="sidebar-nav"></div>
+      <div class="sidebar-bottom">
+        <div class="countdown-box">
+          <div class="countdown-label">Days to exam</div>
+          <div class="countdown-days" id="cd-days">—</div>
+          <div class="countdown-sub">days remaining</div>
+          <div class="attempt-tag" id="cd-attempt"></div>
+        </div>
+      </div>
+    </nav>
+    <main class="main" id="main-content"></main>
+  </div>
+</div>
+
+<!-- ══ SETTINGS MODAL ══ -->
+<div class="modal-bg" id="settings-modal" style="display:none" onclick="if(event.target===this)closeSettings()">
+  <div class="modal-card">
+    <div class="modal-title">Change settings</div>
+    <div class="modal-field">
+      <label>Course</label>
+      <div class="modal-toggle" id="m-course-toggle">
+        <button class="toggle-btn active" id="m-btn-final" onclick="mSetCourse('Final')">CA Final</button>
+        <button class="toggle-btn" id="m-btn-inter" onclick="mSetCourse('Inter')">CA Inter</button>
+      </div>
+    </div>
+    <div class="modal-field" id="m-group-field">
+      <label>Group</label>
+      <div class="modal-toggle" id="m-group-toggle">
+        <button class="toggle-btn active-soft" id="m-grp-both" onclick="mSetGroup('Both')">Both Groups</button>
+        <button class="toggle-btn" id="m-grp-1" onclick="mSetGroup('Group 1')">Group 1</button>
+        <button class="toggle-btn" id="m-grp-2" onclick="mSetGroup('Group 2')">Group 2</button>
+      </div>
+    </div>
+    <div class="modal-field">
+      <label>Your name</label>
+      <input type="text" id="m-name" maxlength="40">
+    </div>
+    <div class="modal-field">
+      <label>Exam attempt</label>
+      <select id="m-attempt">
+        <option value="Nov 2026">Nov 2026</option>
+        <option value="May 2027">May 2027</option>
+        <option value="Nov 2027">Nov 2027</option>
+      </select>
+    </div>
+    <div class="modal-warn">Changing name, group or attempt switches to that profile's save file. Your current progress isn't lost — switch back anytime to see it again.</div>
+    <div class="modal-btns">
+      <button class="btn-modal-cancel" onclick="closeSettings()">Cancel</button>
+      <button class="btn-modal-save" onclick="applySettings()">Save & apply</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+// SUBJECT DATA
+// ══════════════════════════════════════════════
+const EXAM_DATES={'Nov 2026':new Date('2026-11-03'),'May 2027':new Date('2027-05-03'),'Nov 2027':new Date('2027-11-01')};
+
+const FINAL_SUBJECTS={
+  FR:{name:'Financial Reporting',group:1,modules:[
+    {label:'Module 1',chapters:[
+      {id:'FR-1',name:'Introduction to Indian Accounting Standards'},
+      {id:'FR-2',name:'Conceptual Framework for Financial Reporting under Ind AS'},
+      {id:'FR-3',name:'Ind AS on Presentation of Items in the Financial Statements',units:['Ind AS 1 "Presentation of Financial Statements"','Ind AS 34 "Interim Financial Reporting"','Ind AS 7 "Statement of Cash Flows"']},
+      {id:'FR-4',name:'Ind AS on Measurement based on Accounting Policies',units:['Ind AS 8 "Accounting Policies, Changes in Accounting Estimates and Errors"','Ind AS 10 "Events after the Reporting Period"','Ind AS 113 "Fair Value Measurement"']},
+    ]},
+    {label:'Module 2',chapters:[
+      {id:'FR-5',name:'Ind AS on Assets of the Financial Statements',units:['Ind AS 2 "Inventories"','Ind AS 16 "Property, Plant and Equipment"','Ind AS 23 "Borrowing Costs"','Ind AS 36 "Impairment of Assets"','Ind AS 38 "Intangible Assets"','Ind AS 40 "Investment Property"','Ind AS 105 "Non-current Assets Held for Sale and Discontinued Operations"','Ind AS 116 "Leases"']},
+    ]},
+    {label:'Module 3',chapters:[
+      {id:'FR-6',name:'Ind AS on Liabilities of the Financial Statements',units:['Ind AS 19 "Employee Benefits"','Ind AS 37 "Provisions, Contingent Liabilities and Contingent Assets"']},
+      {id:'FR-7',name:'Ind AS on Items impacting the Financial Statements',units:['Ind AS 12 "Income Taxes"','Ind AS 21 "The Effects of Changes in Foreign Exchange Rates"']},
+      {id:'FR-8',name:'Ind AS on Disclosures in the Financial Statements',units:['Ind AS 24 "Related Party Disclosures"','Ind AS 33 "Earnings per Share"','Ind AS 108 "Operating Segments"']},
+    ]},
+    {label:'Module 4',chapters:[
+      {id:'FR-9',name:'Ind AS 115 "Revenue from Contracts with Customers"'},
+      {id:'FR-10',name:'Other Indian Accounting Standards',units:['Ind AS 41 "Agriculture"','Ind AS 20 "Accounting for Government Grants and Disclosure of Government Assistance"','Ind AS 102 "Share Based Payment"']},
+      {id:'FR-11',name:'Accounting and Reporting of Financial Instruments',units:['Financial Instruments: Scope and Definitions','Classification and Measurement of Financial Assets and Financial Liabilities','Financial Instruments: Equity and Financial Liabilities','Derivatives and Embedded Derivatives','Recognition and Derecognition of Financial Instruments','Hedge Accounting','Disclosures']},
+    ]},
+    {label:'Module 5',chapters:[
+      {id:'FR-12',name:'Ind AS 103 "Business Combinations"'},
+      {id:'FR-13',name:'Consolidated and Separate Financial Statements of Group Entities',units:['Introduction to Consolidated and Separate Financial Statements','Important Definitions','Consolidated Financial Statements','Ind AS 110: Consolidation Procedure for Subsidiaries','Ind AS 111: Joint Arrangements','Ind AS 28: Investment in Associates & Joint Ventures','Ind AS 27: Separate Financial Statements','Disclosures']},
+      {id:'FR-14',name:'Ind AS 101 "First-time Adoption of Indian Accounting Standards"'},
+      {id:'FR-15',name:'Analysis of Financial Statements'},
+      {id:'FR-16',name:'Professional and Ethical Duty of a Chartered Accountant'},
+      {id:'FR-17',name:'Accounting and Technology'},
+    ]},
+  ]},
+  AFM:{name:'Advanced Financial Management',group:1,modules:[
+    {label:'Chapters',chapters:[
+      {id:'AFM-1',name:'Financial Policy and Corporate Strategy'},{id:'AFM-2',name:'Risk Management'},
+      {id:'AFM-3',name:'Advanced Capital Budgeting Decisions'},{id:'AFM-4',name:'Security Analysis'},
+      {id:'AFM-5',name:'Security Valuation'},{id:'AFM-6',name:'Portfolio Management'},
+      {id:'AFM-7',name:'Securitization'},{id:'AFM-8',name:'Mutual Funds'},
+      {id:'AFM-9',name:'Derivatives Analysis and Valuation'},{id:'AFM-10',name:'Foreign Exchange Exposure and Risk Management'},
+      {id:'AFM-11',name:'International Financial Management'},{id:'AFM-12',name:'Interest Rate Risk Management'},
+      {id:'AFM-13',name:'Business Valuation'},{id:'AFM-14',name:'Mergers, Acquisitions and Corporate Restructuring'},
+      {id:'AFM-15',name:'Startup Finance'},
+    ]},
+  ]},
+  AA:{name:'Advanced Auditing & Professional Ethics',group:1,modules:[
+    {label:'Module 1',chapters:[
+      {id:'AA-1',name:'Quality Control'},{id:'AA-2',name:'General Auditing Principles and Auditors Responsibilities'},
+      {id:'AA-3',name:'Audit Planning, Strategy and Execution'},{id:'AA-4',name:'Materiality, Risk Assessment and Internal Control'},
+      {id:'AA-5',name:'Audit Evidence'},{id:'AA-6',name:'Completion and Review'},{id:'AA-7',name:'Reporting'},
+    ]},
+    {label:'Module 2',chapters:[
+      {id:'AA-8',name:'Specialised Areas'},{id:'AA-9',name:'Related Services'},{id:'AA-10',name:'Review of Financial Information'},
+      {id:'AA-11',name:'Prospective Financial Information and Other Assurance Services'},{id:'AA-12',name:'Digital Auditing & Assurance'},
+      {id:'AA-13',name:'Group Audits'},{id:'AA-14',name:'Special Features of Audit of Banks & Non-Banking Financial Companies'},
+    ]},
+    {label:'Module 3',chapters:[
+      {id:'AA-15',name:'Overview of Audit of Public Sector Undertakings'},{id:'AA-16',name:'Internal Audit'},
+      {id:'AA-17',name:'Due Diligence, Investigation & Forensic Accounting'},
+      {id:'AA-18',name:'Emerging Areas: SDG & ESG Assurance'},{id:'AA-19',name:'Professional Ethics & Liabilities of Auditors'},
+    ]},
+  ]},
+  DT:{name:'Direct Tax Laws & International Taxation',group:2,modules:[
+    {label:'Module 1',chapters:[
+      {id:'DT-1',name:'Basic Concepts'},{id:'DT-2',name:'Incomes which do not form part of Total Income'},
+      {id:'DT-3',name:'Profits and Gains of Business or Profession'},{id:'DT-4',name:'Capital Gains'},
+      {id:'DT-5',name:'Income from Other Sources'},{id:'DT-6',name:'Income of Other Persons included in assessees Total Income'},
+      {id:'DT-7',name:'Aggregation of income, set-off or carry forward of Losses'},{id:'DT-8',name:'Deductions from Gross Total Income'},
+    ]},
+    {label:'Module 2',chapters:[
+      {id:'DT-9',name:'Assessment of Various Entities'},
+      {id:'DT-10',name:'Assessment of Trusts and Institutions, Political Parties and Other Special Entities'},
+      {id:'DT-11',name:'Tax Planning, Tax Avoidance & Tax Evasion'},{id:'DT-12',name:'Taxation of Digital Transactions'},
+    ]},
+    {label:'Module 3',chapters:[
+      {id:'DT-13',name:'Deduction, Collection and Recovery of Tax'},{id:'DT-14',name:'Income-tax Authorities'},
+      {id:'DT-15',name:'Assessment Procedure'},{id:'DT-16',name:'Appeals and Revision'},
+      {id:'DT-17',name:'Dispute Resolution'},{id:'DT-18',name:'Miscellaneous Provisions'},
+      {id:'DT-19',name:'Provisions to Counteract Unethical Tax Practices'},{id:'DT-20',name:'Tax Audit and Ethical Compliances'},
+    ]},
+    {label:'Module 4 — International Taxation',chapters:[
+      {id:'DT-21',name:'Non-resident Taxation'},{id:'DT-22',name:'Double Taxation Relief'},
+      {id:'DT-23',name:'Advance Rulings'},{id:'DT-24',name:'Transfer Pricing'},
+      {id:'DT-25',name:'Fundamentals of BEPS'},{id:'DT-26',name:'Application and Interpretation of Tax Treaties'},
+      {id:'DT-27',name:'Overview of Model Tax Conventions'},{id:'DT-28',name:'Latest Developments in International Taxation'},
+    ]},
+  ]},
+  IDT:{name:'Indirect Tax Laws',group:2,modules:[
+    {label:'Part I — GST, Module 1',chapters:[
+      {id:'IDT-1',name:'Supply under GST'},{id:'IDT-2',name:'Charge of GST'},{id:'IDT-3',name:'Place of Supply'},
+      {id:'IDT-4',name:'Exemptions from GST'},{id:'IDT-5',name:'Time of Supply'},{id:'IDT-6',name:'Value of Supply'},
+    ]},
+    {label:'Part I — GST, Module 2',chapters:[
+      {id:'IDT-7',name:'Input Tax Credit'},{id:'IDT-8',name:'Registration'},
+      {id:'IDT-9',name:'Tax Invoice, Credit and Debit Notes'},{id:'IDT-10',name:'Accounts and Records; E-way Bill'},
+      {id:'IDT-11',name:'Payment of Tax'},{id:'IDT-12',name:'Electronic Commerce Transactions'},{id:'IDT-13',name:'Returns'},
+    ]},
+    {label:'Part I — GST, Module 3',chapters:[
+      {id:'IDT-14',name:'Import and Export under GST'},{id:'IDT-15',name:'Refunds'},{id:'IDT-16',name:'Job Work'},
+      {id:'IDT-17',name:'Assessment and Audit'},{id:'IDT-18',name:'Inspection, Search, Seizure and Arrest'},
+      {id:'IDT-19',name:'Demands and Recovery'},{id:'IDT-20',name:'Liability to Pay Tax in Certain Cases'},
+      {id:'IDT-21',name:'Offences and Penalties and Ethical Aspects under GST'},
+      {id:'IDT-22',name:'Appeals and Revision'},{id:'IDT-23',name:'Advance Ruling'},{id:'IDT-24',name:'Miscellaneous Provisions'},
+    ]},
+    {label:'Part II — Customs & FTP, Module 4',chapters:[
+      {id:'IDT-C1',name:'Levy of and Exemptions from Customs Duty'},{id:'IDT-C2',name:'Types of Duty'},
+      {id:'IDT-C3',name:'Classification of Imported and Export Goods'},{id:'IDT-C4',name:'Valuation under the Customs Act, 1962'},
+      {id:'IDT-C5',name:'Importation and Exportation of Goods'},{id:'IDT-C6',name:'Warehousing'},
+      {id:'IDT-C7',name:'Refund'},{id:'IDT-C8',name:'Foreign Trade Policy'},
+    ]},
+  ]},
+};
+
+const INTER_SUBJECTS={
+  IACC:{name:'Advanced Accounting',group:1,modules:[
+    {label:'Module I',chapters:[
+      {id:'IACC-1',name:'Introduction to Accounting Standards'},
+      {id:'IACC-2',name:'Framework for Preparation and Presentation of Financial Statements'},
+      {id:'IACC-3',name:'Applicability of Accounting Standards'},
+      {id:'IACC-4',name:'Presentation & Disclosures Based Accounting Standards'},
+    ]},
+    {label:'Module II',chapters:[
+      {id:'IACC-5',name:'Assets Based Accounting Standards'},{id:'IACC-6',name:'Liabilities based Accounting Standards'},
+      {id:'IACC-7',name:'Accounting Standards based on items impacting Financial Statements'},
+      {id:'IACC-8',name:'Revenue based Accounting Standards'},{id:'IACC-9',name:'Other Accounting Standards'},
+      {id:'IACC-10',name:'Accounting Standards for Consolidated Financial Statements'},
+    ]},
+    {label:'Module III',chapters:[
+      {id:'IACC-11',name:'Financial Statements of Companies'},{id:'IACC-12',name:'Buy back of Securities'},
+      {id:'IACC-13',name:'Amalgamation of companies'},{id:'IACC-14',name:'Accounting for Reconstruction of companies'},
+      {id:'IACC-15',name:'Accounting for Branches including foreign branches'},
+    ]},
+  ]},
+  ILAW:{name:'Corporate & Other Laws',group:1,modules:[
+    {label:'Module 1 — Companies Act',chapters:[
+      {id:'ILAW-1',name:'Preliminary'},{id:'ILAW-2',name:'Incorporation of Company and Matters Incidental thereto'},
+      {id:'ILAW-3',name:'Prospectus and Allotment of Securities'},{id:'ILAW-4',name:'Share Capital and Debentures'},
+      {id:'ILAW-5',name:'Acceptance of Deposits by companies'},{id:'ILAW-6',name:'Registration of Charges'},
+    ]},
+    {label:'Module 2',chapters:[
+      {id:'ILAW-7',name:'Management and Administration'},{id:'ILAW-8',name:'Declaration and Payment of Dividend'},
+      {id:'ILAW-9',name:'Accounts of Companies'},{id:'ILAW-10',name:'Audit and Auditors'},
+      {id:'ILAW-11',name:'Companies Incorporated Outside India'},
+    ]},
+    {label:'Module 3 — Other Laws',chapters:[
+      {id:'ILAW-12',name:'The Limited Liability Partnership Act, 2008'},
+      {id:'ILAW-13',name:'The General Clauses Act, 1897'},{id:'ILAW-14',name:'Interpretation of Statutes'},
+      {id:'ILAW-15',name:'The Foreign Exchange Management Act, 1999'},
+    ]},
+  ]},
+  ITAX:{name:'Taxation — Section A (Income Tax)',group:1,modules:[
+    {label:'Module 1',chapters:[
+      {id:'ITAX-1',name:'Basic Concepts'},{id:'ITAX-2',name:'Residence and Scope of Total Income'},{id:'ITAX-3',name:'Heads of Income'},
+    ]},
+    {label:'Module 2',chapters:[
+      {id:'ITAX-4',name:"Income of Other Persons included in Assessee's Total Income"},
+      {id:'ITAX-5',name:'Aggregation of Income, Set-off and Carry Forward of Losses'},
+      {id:'ITAX-6',name:'Deductions from Gross Total Income'},
+      {id:'ITAX-7',name:'Advance Tax, Tax Deduction at Source and Tax Collection at Source'},
+      {id:'ITAX-8',name:'Provisions for filing Return of Income and Self-assessment'},
+      {id:'ITAX-9',name:'Income-tax Liability - Computation and Optimisation'},
+    ]},
+  ]},
+  IGST:{name:'Taxation — Section B (GST)',group:1,modules:[
+    {label:'Module 1',chapters:[
+      {id:'IGST-1',name:'GST in India — An Introduction'},{id:'IGST-2',name:'Supply under GST'},
+      {id:'IGST-3',name:'Charge of GST'},{id:'IGST-4',name:'Place of Supply'},
+      {id:'IGST-5',name:'Exemptions from GST'},{id:'IGST-6',name:'Time of Supply'},{id:'IGST-7',name:'Value of Supply'},
+    ]},
+    {label:'Module 2',chapters:[
+      {id:'IGST-8',name:'Input Tax Credit'},{id:'IGST-9',name:'Registration'},
+      {id:'IGST-10',name:'Tax Invoice; Credit and Debit Notes'},{id:'IGST-11',name:'Accounts and Records'},
+      {id:'IGST-12',name:'E-Way Bill'},{id:'IGST-13',name:'Payment of Tax'},
+      {id:'IGST-14',name:'Tax Deduction at Source and Collection of Tax at Source'},{id:'IGST-15',name:'Returns'},
+    ]},
+  ]},
+};
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+let userName='',userAttempt='',userCourse='Final',userGroup='Both';
+let currentView='dashboard';
+let progress={},sessions=[],dailyGoal=6,streak=0,lastStudyDate=null;
+let expandedChapters=new Set();
+let swRunning=false,swStart=0,swElapsed=0,swTick=null,swSubject='',swChapter='',swChapterName='';
+let pomoRunning=false,pomoTick=null,pomoMode='focus';
+let pomoFocusMins=25,pomoBreakMins=5,pomoLongMins=15,pomoSecsLeft=25*60,pomoCount=0;
+let audioCtx=null,audioNodes={},ambientVolume=0.3;
+// modal state
+let mCourse='Final',mGroup='Both';
+
+// ══════════════════════════════════════════════
+// STORAGE — auto-detect cloud vs localStorage
+// (key is built from course + name + group + attempt, so each
+//  distinct profile gets its own save file)
+// ══════════════════════════════════════════════
+function storageKey(){
+  const n=userName.toLowerCase().trim().replace(/\s+/g,'_');
+  const g=userGroup.replace(/\s+/g,'').toLowerCase();
+  const a=userAttempt.replace(/\s+/g,'').toLowerCase();
+  return `ca_tracker_${userCourse.toLowerCase()}_${n}_${g}_${a}`;
+}
+
+async function saveData(){
+  const data=JSON.stringify({progress,sessions,dailyGoal,streak,lastStudyDate,pomoFocusMins,pomoBreakMins,pomoLongMins});
+  const key=storageKey();
+  try{ if(window.storage){await window.storage.set(key,data,false);return;} }catch(e){}
+  try{ localStorage.setItem(key,data); }catch(e){}
+}
+
+async function loadData(){
+  const key=storageKey();
+  try{
+    if(window.storage){
+      const r=await window.storage.get(key,false);
+      if(r&&r.value){parseData(r.value);return;}
+    }
+  }catch(e){}
+  try{
+    const r=localStorage.getItem(key);
+    if(r)parseData(r);
+  }catch(e){}
+}
+
+function parseData(raw){
+  try{
+    const d=JSON.parse(raw);
+    progress=d.progress||{};sessions=d.sessions||[];
+    dailyGoal=d.dailyGoal||6;streak=d.streak||0;lastStudyDate=d.lastStudyDate||null;
+    if(d.pomoFocusMins)pomoFocusMins=d.pomoFocusMins;
+    if(d.pomoBreakMins)pomoBreakMins=d.pomoBreakMins;
+    if(d.pomoLongMins)pomoLongMins=d.pomoLongMins;
+    pomoSecsLeft=pomoFocusMins*60;
+  }catch(e){}
+}
+
+// ══════════════════════════════════════════════
+// SETUP SCREEN
+// ══════════════════════════════════════════════
+function setCourse(c){
+  userCourse=c;
+  document.getElementById('btn-final').className='toggle-btn'+(c==='Final'?' active':'');
+  document.getElementById('btn-inter').className='toggle-btn'+(c==='Inter'?' active':'');
+  document.getElementById('setup-title').textContent=c==='Final'?'CA Final Study Tracker':'CA Inter Study Tracker';
+  const grpBoth=document.getElementById('grp-both');
+  const grpTwo=document.getElementById('grp-2');
+  if(c==='Inter'){
+    grpBoth.style.display='none'; grpTwo.style.display='none';
+    setGroup('Group 1');
+  } else {
+    grpBoth.style.display=''; grpTwo.style.display='';
+    setGroup('Both');
+  }
+  checkSetup();
+}
+
+function setGroup(g){
+  userGroup=g;
+  ['grp-both','grp-1','grp-2'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.className='toggle-btn'+(
+      (id==='grp-both'&&g==='Both')||(id==='grp-1'&&g==='Group 1')||(id==='grp-2'&&g==='Group 2')
+      ?' active-soft':'');
+  });
+  checkSetup();
+}
+
+function checkSetup(){
+  const n=document.getElementById('setup-name').value.trim();
+  const a=document.getElementById('setup-attempt').value;
+  document.getElementById('setup-btn').disabled=!(n&&a);
+}
+
+async function startApp(){
+  userName=document.getElementById('setup-name').value.trim();
+  userAttempt=document.getElementById('setup-attempt').value;
+  document.getElementById('setup-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  updateSidebarHeader();
+  updateCountdown();
+  await loadData();
+  initProgress();
+  buildSidebar();
+  renderView();
+}
+
+function updateSidebarHeader(){
+  document.getElementById('sb-logo').textContent=userCourse==='Final'?'CA Final Tracker':'CA Inter Tracker';
+  document.getElementById('sb-name').textContent=userName;
+  document.getElementById('sb-meta').textContent=userGroup+' · '+userAttempt;
+}
+
+// ══════════════════════════════════════════════
+// SETTINGS MODAL
+// ══════════════════════════════════════════════
+function openSettings(){
+  mCourse=userCourse; mGroup=userGroup;
+  document.getElementById('m-name').value=userName;
+  document.getElementById('m-attempt').value=userAttempt;
+  mSetCourse(mCourse,true); mSetGroup(mGroup,true);
+  document.getElementById('settings-modal').style.display='flex';
+}
+function closeSettings(){ document.getElementById('settings-modal').style.display='none'; }
+
+function mSetCourse(c,silent){
+  mCourse=c;
+  document.getElementById('m-btn-final').className='toggle-btn'+(c==='Final'?' active':'');
+  document.getElementById('m-btn-inter').className='toggle-btn'+(c==='Inter'?' active':'');
+  const both=document.getElementById('m-grp-both'), two=document.getElementById('m-grp-2');
+  if(c==='Inter'){ both.style.display='none'; two.style.display='none'; if(!silent)mSetGroup('Group 1'); }
+  else { both.style.display=''; two.style.display=''; if(!silent)mSetGroup('Both'); }
+}
+function mSetGroup(g){
+  mGroup=g;
+  ['m-grp-both','m-grp-1','m-grp-2'].forEach(id=>{
+    const el=document.getElementById(id); if(!el)return;
+    el.className='toggle-btn'+((id==='m-grp-both'&&g==='Both')||(id==='m-grp-1'&&g==='Group 1')||(id==='m-grp-2'&&g==='Group 2')?' active-soft':'');
+  });
+}
+
+async function applySettings(){
+  const newName=document.getElementById('m-name').value.trim();
+  const newAttempt=document.getElementById('m-attempt').value;
+  if(!newName||!newAttempt){ toast('Please fill in all fields'); return; }
+  userCourse=mCourse; userGroup=mGroup; userName=newName; userAttempt=newAttempt;
+  closeSettings();
+  progress={}; sessions=[]; streak=0; lastStudyDate=null; dailyGoal=6; expandedChapters=new Set();
+  await loadData();
+  initProgress();
+  updateSidebarHeader();
+  updateCountdown();
+  buildSidebar();
+  showView('dashboard');
+  toast('Settings updated — profile loaded');
+}
+
+// ══════════════════════════════════════════════
+// ACTIVE SUBJECTS
+// ══════════════════════════════════════════════
+function getActiveSubjects(){
+  const src=userCourse==='Final'?FINAL_SUBJECTS:INTER_SUBJECTS;
+  return Object.fromEntries(Object.entries(src).filter(([,s])=>{
+    if(userGroup==='Both')return true;
+    if(userGroup==='Group 1')return s.group===1;
+    if(userGroup==='Group 2')return s.group===2;
+    return true;
+  }));
+}
+
+// ══════════════════════════════════════════════
+// INIT PROGRESS
+// ══════════════════════════════════════════════
+function initProgress(){
+  Object.values(getActiveSubjects()).forEach(subj=>{
+    subj.modules.forEach(mod=>{ mod.chapters.forEach(ch=>{
+      if(!progress[ch.id]){
+        progress[ch.id]={status:0,pct:0,revision:false,notes:''};
+        if(ch.units) progress[ch.id].units=ch.units.map(()=>({status:0,pct:0}));
+      } else if(ch.units && !progress[ch.id].units){
+        progress[ch.id].units=ch.units.map(()=>({status:0,pct:0}));
+      }
+    });});
+  });
+}
+
+// ══════════════════════════════════════════════
+// SIDEBAR
+// ══════════════════════════════════════════════
+const ICONS={FR:'📊',AFM:'💹',AA:'🔍',DT:'🏛',IDT:'📦',IACC:'📒',ILAW:'⚖️',ITAX:'📋',IGST:'🧾'};
+function buildSidebar(){
+  const subjects=getActiveSubjects();
+  const g1=Object.entries(subjects).filter(([,s])=>s.group===1);
+  const g2=Object.entries(subjects).filter(([,s])=>s.group===2);
+  let html=`<div class="nav-label" style="margin-top:.2rem">Overview</div>
+    <button class="nav-item" onclick="showView('dashboard')"><span class="nav-icon">◎</span><span>Dashboard</span></button>
+    <button class="nav-item" onclick="showView('revision')"><span class="nav-icon">↺</span><span>Revision list</span><span class="nav-pill" id="rev-count">0</span></button>
+    <button class="nav-item" onclick="showView('sessions')"><span class="nav-icon">⏱</span><span>Session log</span></button>`;
+  if(g1.length){ html+=`<div class="nav-label">Group 1</div>`; g1.forEach(([code,subj])=>{ html+=`<button class="nav-item" onclick="showSubject('${code}')"><span class="nav-icon">${ICONS[code]||'📖'}</span><span>${subj.name}</span><span class="nav-pill" id="pil-${code}">0%</span></button>`; }); }
+  if(g2.length){ html+=`<div class="nav-label">Group 2</div>`; g2.forEach(([code,subj])=>{ html+=`<button class="nav-item" onclick="showSubject('${code}')"><span class="nav-icon">${ICONS[code]||'📖'}</span><span>${subj.name}</span><span class="nav-pill" id="pil-${code}">0%</span></button>`; }); }
+  html+=`<div class="nav-label">Tools</div>
+    <button class="nav-item" onclick="showView('tools')"><span class="nav-icon">⏱</span><span>Stopwatch & Pomodoro</span></button>
+    <button class="nav-item" onclick="showView('music')"><span class="nav-icon">♪</span><span>Music & Sounds</span></button>`;
+  document.getElementById('sidebar-nav').innerHTML=html;
+  updateSidebarPills(); updateRevCount();
+}
+
+// ══════════════════════════════════════════════
+// COUNTDOWN
+// ══════════════════════════════════════════════
+function updateCountdown(){
+  const date=EXAM_DATES[userAttempt]; if(!date)return;
+  const diff=Math.ceil((date-new Date())/(1000*60*60*24));
+  document.getElementById('cd-days').textContent=diff>0?diff:0;
+  document.getElementById('cd-attempt').textContent=userAttempt;
+}
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+function showView(v){ currentView=v; renderView(); highlightNav(); }
+function showSubject(s){ currentView='subject_'+s; renderView(); highlightNav(); }
+function highlightNav(){
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+}
+function renderView(){
+  const mc=document.getElementById('main-content');
+  if(currentView==='dashboard') mc.innerHTML=renderDashboard();
+  else if(currentView==='revision') mc.innerHTML=renderRevision();
+  else if(currentView==='sessions') mc.innerHTML=renderSessions();
+  else if(currentView==='tools') mc.innerHTML=renderTools();
+  else if(currentView==='music') mc.innerHTML=renderMusic();
+  else if(currentView.startsWith('subject_')) mc.innerHTML=renderSubject(currentView.split('_')[1]);
+}
+
+// ══════════════════════════════════════════════
+// PROGRESS HELPERS
+// ══════════════════════════════════════════════
+function getChapterPct(chId){
+  const p=progress[chId]; if(!p)return 0;
+  const ch=findChapter(chId);
+  if(ch&&ch.units&&p.units&&p.units.length) return Math.round(p.units.reduce((a,u)=>a+(u.pct||0),0)/p.units.length);
+  return p.pct||0;
+}
+function getSubjectPct(code){
+  const subj=getActiveSubjects()[code]; if(!subj)return 0;
+  const all=subj.modules.flatMap(m=>m.chapters); if(!all.length)return 0;
+  return Math.round(all.reduce((a,ch)=>a+getChapterPct(ch.id),0)/all.length);
+}
+function getTotalPct(){ const codes=Object.keys(getActiveSubjects()); if(!codes.length)return 0; return Math.round(codes.reduce((a,c)=>a+getSubjectPct(c),0)/codes.length); }
+function getTodayHours(){ const t=new Date().toDateString(); return sessions.filter(s=>new Date(s.date).toDateString()===t).reduce((a,s)=>a+s.duration,0)/3600; }
+function getRevisionItems(){ const items=[]; Object.entries(getActiveSubjects()).forEach(([code,subj])=>{ subj.modules.forEach(mod=>{ mod.chapters.forEach(ch=>{ const p=progress[ch.id]; if(p&&p.revision)items.push({code,chId:ch.id,chName:ch.name}); }); }); }); return items; }
+function updateSidebarPills(){ Object.keys(getActiveSubjects()).forEach(c=>{ const el=document.getElementById('pil-'+c); if(el)el.textContent=getSubjectPct(c)+'%'; }); }
+function updateRevCount(){ const el=document.getElementById('rev-count'); if(el)el.textContent=getRevisionItems().length; }
+function findChapter(chId){ return Object.values(getActiveSubjects()).flatMap(s=>s.modules.flatMap(m=>m.chapters)).find(c=>c.id===chId); }
+
+// ══════════════════════════════════════════════
+// CHAPTER ↔ UNIT RELATIONSHIP
+// • Marking a chapter "Completed" marks every unit under it complete.
+// • Marking every unit under a chapter complete marks the chapter complete.
+// • Any unit progress short of "all complete" puts the chapter at
+//   "In progress" (or "Not started" if nothing has begun).
+// ══════════════════════════════════════════════
+function recalcChapterFromUnits(chId){
+  const ch=findChapter(chId); if(!ch||!ch.units)return;
+  const p=progress[chId]; if(!p||!p.units)return;
+  const allComplete=p.units.every(u=>u.status===2);
+  const anyStarted=p.units.some(u=>u.status>0||u.pct>0);
+  p.pct=Math.round(p.units.reduce((a,u)=>a+(u.pct||0),0)/p.units.length);
+  if(allComplete){ p.status=2; p.pct=100; }
+  else if(anyStarted){ p.status=1; }
+  else { p.status=0; }
+}
+
+function updateStatus(chId,val){
+  const ch=findChapter(chId); const p=progress[chId]; if(!p)return;
+  p.status=parseInt(val,10);
+  if(p.status===2){ p.pct=100; if(ch&&ch.units){ p.units=ch.units.map(()=>({status:2,pct:100})); } }
+  else if(p.status===0 && !(ch&&ch.units)){ p.pct=0; }
+  saveData(); renderView(); buildSidebar();
+}
+
+function updatePct(chId,val){
+  const p=progress[chId]; if(!p)return;
+  p.pct=parseInt(val,10);
+  p.status=p.pct>=100?2:(p.pct>0?1:0);
+  saveData(); renderView(); buildSidebar();
+}
+
+function updateUnitStatus(chId,idx,val){
+  const ch=findChapter(chId); const p=progress[chId]; if(!p)return;
+  if(!p.units) p.units=ch.units.map(()=>({status:0,pct:0}));
+  p.units[idx].status=parseInt(val,10);
+  p.units[idx].pct=p.units[idx].status===2?100:(p.units[idx].status===0?0:p.units[idx].pct);
+  recalcChapterFromUnits(chId);
+  saveData(); renderView(); buildSidebar();
+}
+
+function updateUnitPct(chId,idx,val){
+  const ch=findChapter(chId); const p=progress[chId]; if(!p)return;
+  if(!p.units) p.units=ch.units.map(()=>({status:0,pct:0}));
+  p.units[idx].pct=parseInt(val,10);
+  p.units[idx].status=p.units[idx].pct>=100?2:(p.units[idx].pct>0?1:0);
+  recalcChapterFromUnits(chId);
+  saveData(); renderView(); buildSidebar();
+}
+
+function toggleChapter(chId){
+  if(expandedChapters.has(chId)) expandedChapters.delete(chId); else expandedChapters.add(chId);
+  renderView();
+}
+function toggleRevision(chId){ progress[chId].revision=!progress[chId].revision; saveData(); renderView(); buildSidebar(); }
+function unflag(chId){ progress[chId].revision=false; saveData(); renderView(); buildSidebar(); }
+function updateNotes(chId,val){ progress[chId].notes=val; saveData(); }
+function setGoal(val){ const n=parseFloat(val); if(!isNaN(n)&&n>0){ dailyGoal=n; saveData(); renderView(); } }
+
+// ══════════════════════════════════════════════
+// SMALL UTILS
+// ══════════════════════════════════════════════
+function escQ(s){ return (s||'').replace(/'/g,"\\'"); }
+function escHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtTime(ms){
+  const s=Math.max(0,Math.floor(ms/1000));
+  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;
+  return h>0?`${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`:`${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+function fmtDur(sec){
+  const h=Math.floor(sec/3600), m=Math.round((sec%3600)/60);
+  if(h>0) return `${h}h ${m}m`;
+  if(m>0) return `${m}m`;
+  return `${sec}s`;
+}
+function fmtDate(iso){
+  const d=new Date(iso), today=new Date();
+  if(d.toDateString()===today.toDateString()) return 'Today';
+  return d.toLocaleDateString('en-IN',{month:'short',day:'numeric'});
+}
+function greeting(){
+  const h=new Date().getHours();
+  if(h<12) return 'morning'; if(h<17) return 'afternoon'; return 'evening';
+}
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer=setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+// ══════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════
+function renderDashboard(){
+  const todayHrs=getTodayHours().toFixed(1),totalPct=getTotalPct(),revItems=getRevisionItems().length;
+  const todayPct=Math.min(100,Math.round((todayHrs/dailyGoal)*100));
+  const subjects=getActiveSubjects();
+  const g1=Object.entries(subjects).filter(([,s])=>s.group===1);
+  const g2=Object.entries(subjects).filter(([,s])=>s.group===2);
+  const sRow=([code,subj])=>{const pct=getSubjectPct(code);return `<div class="subj-row" onclick="showSubject('${code}')"><span class="tag ${subj.group===1?'badge-g1':'badge-g2'}">G${subj.group}</span><span class="subj-name">${subj.name}</span><div class="progress-bar-wrap"><div class="progress-bar" style="width:${pct}%"></div></div><span class="subj-pct">${pct}%</span></div>`;};
+  let subjHtml='';
+  if(g1.length){subjHtml+=`<div style="font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.45rem">Group 1</div>`;subjHtml+=g1.map(sRow).join('');}
+  if(g2.length){subjHtml+=`<div style="font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin:.7rem 0 .45rem">Group 2</div>`;subjHtml+=g2.map(sRow).join('');}
+  const recent=sessions.slice(-5).reverse().map(s=>`<div class="session-item"><span class="session-subj">${escHtml(s.subject)}</span><span class="session-ch">${escHtml(s.chapterName)}</span><span class="session-dur">${fmtDur(s.duration)}</span><span class="session-date">${fmtDate(s.date)}</span></div>`).join('')||'<div class="empty" style="padding:1rem">No sessions yet. Start the stopwatch to log study time.</div>';
+  return `<div class="section-card">
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
+      <div><div class="section-title">Good ${greeting()}, ${escHtml(userName.split(' ')[0])} 👋</div><div style="font-size:12px;color:var(--text3)">CA ${userCourse} · ${userGroup} · ${userAttempt}</div></div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:.45rem"><span style="font-size:18px">🔥</span><div><div style="font-size:20px;font-weight:300;font-family:'Lora',serif;color:var(--warn);line-height:1">${streak}</div><div style="font-size:10px;color:var(--text3)">day streak</div></div></div>
+    </div>
+    <div class="dash-grid">
+      <div class="stat-card"><div class="stat-label">Overall</div><div class="stat-val">${totalPct}%</div><div class="stat-sub">complete</div></div>
+      <div class="stat-card"><div class="stat-label">Today</div><div class="stat-val">${todayHrs}h</div><div class="stat-sub">goal: ${dailyGoal}h</div></div>
+      <div class="stat-card"><div class="stat-label">Sessions</div><div class="stat-val">${sessions.length}</div><div class="stat-sub">total logged</div></div>
+      <div class="stat-card"><div class="stat-label">Revision</div><div class="stat-val">${revItems}</div><div class="stat-sub">flagged</div></div>
+    </div>
+    <div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem">
+      <span style="font-size:12px;font-weight:500;color:var(--text2)">Today's goal</span>
+      <span style="font-size:11px;color:var(--text3);display:flex;align-items:center;gap:4px">${todayHrs}h / <input type="number" min="1" max="16" step="0.5" value="${dailyGoal}" style="width:44px;padding:2px 4px;border:1px solid var(--border2);border-radius:4px;font-size:11px;font-family:'Inter',sans-serif" onchange="setGoal(this.value)">h</span>
+    </div>
+    <div style="height:6px;background:var(--surface2);border-radius:3px;overflow:hidden"><div style="height:100%;width:${todayPct}%;background:var(--accent2);border-radius:3px;transition:width .4s"></div></div></div>
+  </div>
+  <div class="section-card"><div class="section-title" style="font-size:15px;margin-bottom:.875rem">Subject overview</div>${subjHtml}</div>
+  <div class="section-card"><div class="section-title" style="font-size:15px;margin-bottom:.875rem">Recent sessions</div>${recent}</div>`;
+}
+
+// ══════════════════════════════════════════════
+// SUBJECT VIEW
+// ══════════════════════════════════════════════
+function renderSubject(code){
+  const subj=getActiveSubjects()[code]; if(!subj)return '<div class="empty">Subject not found.</div>';
+  const pct=getSubjectPct(code);
+  let html=`<div class="section-card">
+    <div class="subject-header">
+      <div><div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:3px">CA ${userCourse} · Group ${subj.group}</div><div class="subject-title">${subj.name}</div></div>
+      <div style="text-align:right"><div style="font-size:26px;font-family:'Lora',serif;font-weight:300;color:var(--accent)">${pct}%</div><div style="font-size:11px;color:var(--text3)">complete</div></div>
+    </div>
+    <div style="height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;margin-bottom:1.25rem"><div style="height:100%;width:${pct}%;background:var(--accent2);border-radius:3px"></div></div>`;
+  subj.modules.forEach(mod=>{
+    html+=`<div style="margin-bottom:1.25rem"><div class="module-label">${mod.label}</div>`;
+    mod.chapters.forEach(ch=>{
+      const p=progress[ch.id]||{status:0,pct:0,revision:false,notes:''};
+      const chPct=getChapterPct(ch.id);
+      const hasUnits=ch.units&&ch.units.length;
+      const sc=['status-0','status-1','status-2'][p.status];
+      const chNum=ch.id.split('-').pop();
+      const isOpen=expandedChapters.has(ch.id);
+      html+=`<div class="chapter-row">
+        <div class="chapter-head" onclick="toggleChapter('${ch.id}')">
+          ${hasUnits?`<span class="ch-expand${isOpen?' open':''}">▶</span>`:'<span style="width:12px;flex-shrink:0;display:inline-block"></span>'}
+          <span class="ch-name">${chNum}. ${ch.name}</span>
+          <div class="ch-controls" onclick="event.stopPropagation()">
+            <span style="font-size:11px;color:var(--text3);min-width:26px;text-align:right">${chPct}%</span>
+            ${!hasUnits?`<input type="range" min="0" max="100" step="5" value="${p.pct}" class="pct-slider" onchange="updatePct('${ch.id}',this.value)">`:``}
+            <select class="status-sel ${sc}" onchange="updateStatus('${ch.id}',this.value)">
+              <option value="0" ${p.status==0?'selected':''}>Not started</option>
+              <option value="1" ${p.status==1?'selected':''}>In progress</option>
+              <option value="2" ${p.status==2?'selected':''}>Completed</option>
+            </select>
+            <button class="rev-btn ${p.revision?'flagged':''}" onclick="toggleRevision('${ch.id}')">↺ ${p.revision?'Flagged':'Revise'}</button>
+            <button class="start-btn" onclick="quickStart('${code}','${ch.id}','${escQ(ch.name)}')">▶ Study</button>
+          </div>
+        </div>`;
+      if(hasUnits){
+        html+=`<div class="unit-rows" style="display:${isOpen?'block':'none'}">`;
+        ch.units.forEach((u,i)=>{
+          const up=(p.units&&p.units[i])||{status:0,pct:0};
+          const usc=['status-0','status-1','status-2'][up.status];
+          html+=`<div class="unit-row">
+            <span class="unit-name">Unit ${i+1}: ${u}</span>
+            <div class="ch-controls" onclick="event.stopPropagation()">
+              <input type="range" min="0" max="100" step="5" value="${up.pct}" class="pct-slider" onchange="updateUnitPct('${ch.id}',${i},this.value)">
+              <span style="font-size:11px;color:var(--text3);min-width:26px">${up.pct}%</span>
+              <select class="status-sel ${usc}" onchange="updateUnitStatus('${ch.id}',${i},this.value)">
+                <option value="0" ${up.status==0?'selected':''}>Not started</option>
+                <option value="1" ${up.status==1?'selected':''}>In progress</option>
+                <option value="2" ${up.status==2?'selected':''}>Completed</option>
+              </select>
+            </div>
+          </div>`;
+        });
+        html+=`</div>`;
+      }
+      html+=`<textarea class="notes-input" placeholder="Notes…" rows="1" onchange="updateNotes('${ch.id}',this.value)" onfocus="this.rows=3" onblur="this.rows=1">${escHtml(p.notes)}</textarea></div>`;
+    });
+    html+=`</div>`;
+  });
+  html+=`</div>`;
+  return html;
+}
+
+// ══════════════════════════════════════════════
+// REVISION
+// ══════════════════════════════════════════════
+function renderRevision(){
+  const items=getRevisionItems();
+  let html=`<div class="section-card"><div class="section-title">Revision list</div><div class="section-sub">${items.length} item${items.length!==1?'s':''} flagged</div>`;
+  if(!items.length)html+=`<div class="empty">No chapters flagged yet.<br>Use the ↺ Revise button on any chapter.</div>`;
+  else items.forEach(item=>{ html+=`<div class="rev-item"><span class="rev-subj-tag">${item.code}</span><div style="flex:1"><div class="rev-ch-name">${escHtml(item.chName)}</div></div><button class="unflag-btn" onclick="unflag('${item.chId}')">Remove</button><button class="start-btn" onclick="quickStart('${item.code}','${item.chId}','${escQ(item.chName)}')">▶ Study</button></div>`; });
+  html+=`</div>`;return html;
+}
+
+// ══════════════════════════════════════════════
+// SESSIONS
+// ══════════════════════════════════════════════
+function renderSessions(){
+  let html=`<div class="section-card"><div class="section-title">Session log</div><div class="section-sub">${sessions.length} total session${sessions.length!==1?'s':''}</div>`;
+  if(!sessions.length)html+=`<div class="empty">No sessions yet.</div>`;
+  else{
+    const byDate={};
+    sessions.slice().reverse().forEach(s=>{ const d=new Date(s.date).toDateString(); if(!byDate[d])byDate[d]=[]; byDate[d].push(s); });
+    Object.entries(byDate).forEach(([date,ss])=>{
+      const total=ss.reduce((a,s)=>a+s.duration,0);
+      html+=`<div style="font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;padding:.5rem 0 .35rem;border-bottom:1px solid var(--border);margin-bottom:.35rem">${date===new Date().toDateString()?'Today':date} — ${fmtDur(total)} total</div>`;
+      ss.forEach(s=>{ html+=`<div class="session-item"><span class="session-subj">${escHtml(s.subject)}</span><span class="session-ch">${escHtml(s.chapterName)}</span><span class="session-dur">${fmtDur(s.duration)}</span></div>`; });
+    });
+  }
+  html+=`</div>`;return html;
+}
+
+// ══════════════════════════════════════════════
+// STOPWATCH
+// ══════════════════════════════════════════════
+function swSetSubject(code){ swSubject=code; swChapter=''; swChapterName=''; renderView(); }
+function swSetChapter(val){
+  if(!val){ swChapter=''; swChapterName=''; return; }
+  const idx=val.indexOf('|');
+  swChapter=val.slice(0,idx); swChapterName=val.slice(idx+1);
+}
+function updateSwDisplay(){
+  const el=document.getElementById('sw-display');
+  if(el) el.textContent=fmtTime(swElapsed+(swRunning?Date.now()-swStart:0));
+}
+function swToggle(){
+  if(swRunning){
+    swElapsed+=Date.now()-swStart; swRunning=false; clearInterval(swTick);
+  } else {
+    swStart=Date.now(); swRunning=true; swTick=setInterval(updateSwDisplay,1000);
+  }
+  renderView();
+}
+function swReset(){
+  clearInterval(swTick); swRunning=false; swElapsed=0; swStart=0;
+  renderView();
+}
+function updateStreak(){
+  const today=new Date().toDateString();
+  if(lastStudyDate===today) return;
+  const y=new Date(); y.setDate(y.getDate()-1);
+  if(lastStudyDate===y.toDateString()) streak++; else streak=1;
+  lastStudyDate=today;
+}
+function swLog(){
+  const totalMs=swElapsed+(swRunning?Date.now()-swStart:0);
+  const totalSec=Math.round(totalMs/1000);
+  if(totalSec<5){ toast('Study for a bit before logging a session'); return; }
+  if(!swSubject||!swChapter){ toast('Select a subject and chapter first'); return; }
+  const subj=getActiveSubjects()[swSubject]; if(!subj)return;
+  sessions.push({subject:subj.name,chapterName:swChapterName||swChapter,duration:totalSec,date:new Date().toISOString()});
+  updateStreak();
+  clearInterval(swTick); swRunning=false; swElapsed=0; swStart=0;
+  saveData(); renderView(); buildSidebar();
+  toast('Session logged: '+fmtDur(totalSec));
+}
+function quickStart(code,chId,chName){
+  swSubject=code; swChapter=chId; swChapterName=chName;
+  if(!swRunning){ swStart=Date.now(); swRunning=true; swTick=setInterval(updateSwDisplay,1000); }
+  showView('tools');
+}
+
+// ══════════════════════════════════════════════
+// POMODORO (focus / break / long-break all customizable)
+// ══════════════════════════════════════════════
+function currentPomoTotal(){ return (pomoMode==='focus'?pomoFocusMins:pomoMode==='break'?pomoBreakMins:pomoLongMins)*60; }
+function setPomoMode(mode){
+  clearInterval(pomoTick); pomoRunning=false;
+  pomoMode=mode; pomoSecsLeft=currentPomoTotal();
+  renderView();
+}
+function updatePomoDisplay(){
+  const disp=document.getElementById('pomo-display');
+  if(disp) disp.textContent=fmtTime(pomoSecsLeft*1000);
+  const arc=document.getElementById('pomo-arc');
+  if(arc){ const r=60,circ=2*Math.PI*r; arc.setAttribute('stroke-dashoffset',circ*(pomoSecsLeft/currentPomoTotal())); }
+}
+function pomoToggle(){
+  if(pomoRunning){
+    clearInterval(pomoTick); pomoRunning=false;
+  } else {
+    pomoRunning=true;
+    pomoTick=setInterval(()=>{
+      pomoSecsLeft--;
+      if(pomoSecsLeft<=0){
+        clearInterval(pomoTick); pomoRunning=false;
+        if(pomoMode==='focus'){
+          pomoCount++;
+          toast('Focus session done — take a break ☕');
+          setPomoMode(pomoCount%4===0?'long':'break');
+        } else {
+          toast('Break over — back to focus 📚');
+          setPomoMode('focus');
+        }
+        return;
+      }
+      updatePomoDisplay();
+    },1000);
+  }
+  renderView();
+}
+function pomoReset(){
+  clearInterval(pomoTick); pomoRunning=false; pomoSecsLeft=currentPomoTotal();
+  renderView();
+}
+function adjPomo(type,delta){
+  if(type==='focus') pomoFocusMins=Math.max(5,Math.min(120,pomoFocusMins+delta));
+  if(type==='break') pomoBreakMins=Math.max(1,Math.min(30,pomoBreakMins+delta));
+  if(type==='long') pomoLongMins=Math.max(5,Math.min(60,pomoLongMins+delta));
+  if(!pomoRunning && pomoMode===type) pomoSecsLeft=currentPomoTotal();
+  saveData(); renderView();
+}
+
+// ══════════════════════════════════════════════
+// TOOLS VIEW
+// ══════════════════════════════════════════════
+function renderTools(){
+  const elapsed=swElapsed+(swRunning?Date.now()-swStart:0);
+  const pomoTotal=currentPomoTotal();
+  const r=60,circ=2*Math.PI*r,dash=circ*(pomoSecsLeft/pomoTotal);
+  const phaseLabel={focus:'Focus time',break:'Short break',long:'Long break'}[pomoMode];
+  const subjects=getActiveSubjects();
+  let sOpts=`<option value="">— Select subject —</option>`;
+  Object.entries(subjects).forEach(([code,subj])=>{ sOpts+=`<option value="${code}" ${swSubject===code?'selected':''}>${subj.name}</option>`; });
+  let cOpts=`<option value="">— Select chapter —</option>`;
+  if(swSubject&&subjects[swSubject]){ subjects[swSubject].modules.forEach(mod=>{ mod.chapters.forEach(ch=>{ cOpts+=`<option value="${ch.id}|${escQ(ch.name).replace(/"/g,'&quot;')}" ${swChapter===ch.id?'selected':''}>${ch.id.split('-').pop()}. ${ch.name}</option>`; }); }); }
+  const todaySessions=sessions.filter(s=>new Date(s.date).toDateString()===new Date().toDateString());
+
+  return `<div class="tools-grid">
+    <div class="tool-card">
+      <div class="tool-title">⏱ Stopwatch</div>
+      <select class="log-sel" onchange="swSetSubject(this.value)">${sOpts}</select>
+      <select class="log-sel" id="sw-chap" onchange="swSetChapter(this.value)">${cOpts}</select>
+      <div class="clock-display" id="sw-display">${fmtTime(elapsed)}</div>
+      <div class="clock-sub">${swChapterName?'Logging to: '+escHtml(swChapterName):'Select subject & chapter above'}</div>
+      <div class="tool-controls">
+        <button class="btn-tool primary" onclick="swToggle()">${swRunning?'Pause':'Start'}</button>
+        <button class="btn-tool" onclick="swReset()">Reset</button>
+        <button class="btn-tool" onclick="swLog()">Log session</button>
+      </div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-title">🍅 Pomodoro</div>
+      <div class="pomo-mode">
+        <button class="pomo-tab ${pomoMode==='focus'?'active':''}" onclick="setPomoMode('focus')">Focus</button>
+        <button class="pomo-tab ${pomoMode==='break'?'active':''}" onclick="setPomoMode('break')">Break</button>
+        <button class="pomo-tab ${pomoMode==='long'?'active':''}" onclick="setPomoMode('long')">Long break</button>
+      </div>
+      <div class="pomo-ring">
+        <svg width="140" height="140" viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="${r}" fill="none" stroke="var(--surface2)" stroke-width="6"/>
+          <circle cx="70" cy="70" r="${r}" fill="none" stroke="var(--accent2)" stroke-width="6"
+            stroke-dasharray="${circ}" stroke-dashoffset="${dash}" stroke-linecap="round" id="pomo-arc"/>
+        </svg>
+        <div class="pomo-ring-text"><div class="pomo-time" id="pomo-display">${fmtTime(pomoSecsLeft*1000)}</div><div class="pomo-phase">${phaseLabel}</div></div>
+      </div>
+      <div class="pomo-count">${pomoCount} pomodoro${pomoCount!==1?'s':''} complete</div>
+      <div class="tool-controls">
+        <button class="btn-tool primary" onclick="pomoToggle()">${pomoRunning?'Pause':'Start'}</button>
+        <button class="btn-tool" onclick="pomoReset()">Reset</button>
+      </div>
+      <div class="pomo-settings">
+        <div class="pomo-setting-field">
+          <div class="pomo-setting-label">Focus</div>
+          <div class="pomo-setting-row">
+            <button class="pomo-adj" onclick="adjPomo('focus',-5)">−</button>
+            <span class="pomo-val">${pomoFocusMins}m</span>
+            <button class="pomo-adj" onclick="adjPomo('focus',5)">+</button>
+          </div>
+        </div>
+        <div class="pomo-setting-field">
+          <div class="pomo-setting-label">Break</div>
+          <div class="pomo-setting-row">
+            <button class="pomo-adj" onclick="adjPomo('break',-1)">−</button>
+            <span class="pomo-val">${pomoBreakMins}m</span>
+            <button class="pomo-adj" onclick="adjPomo('break',1)">+</button>
+          </div>
+        </div>
+        <div class="pomo-setting-field">
+          <div class="pomo-setting-label">Long break</div>
+          <div class="pomo-setting-row">
+            <button class="pomo-adj" onclick="adjPomo('long',-5)">−</button>
+            <span class="pomo-val">${pomoLongMins}m</span>
+            <button class="pomo-adj" onclick="adjPomo('long',5)">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section-card">
+    <div class="section-title" style="font-size:15px;margin-bottom:.6rem">Today's sessions</div>
+    ${todaySessions.length?todaySessions.slice().reverse().map(s=>`<div class="session-item"><span class="session-subj">${escHtml(s.subject)}</span><span class="session-ch">${escHtml(s.chapterName)}</span><span class="session-dur">${fmtDur(s.duration)}</span></div>`).join(''):'<div class="empty" style="padding:1rem">No sessions logged today yet.</div>'}
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+// AMBIENT SOUNDS (Web Audio noise generators)
+// ══════════════════════════════════════════════
+function initAudio(){ if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }
+function makeNoiseBuffer(brown){
+  const bufferSize=2*audioCtx.sampleRate;
+  const buffer=audioCtx.createBuffer(1,bufferSize,audioCtx.sampleRate);
+  const data=buffer.getChannelData(0);
+  if(brown){
+    let last=0;
+    for(let i=0;i<bufferSize;i++){ const white=Math.random()*2-1; data[i]=(last+0.02*white)/1.02; last=data[i]; data[i]*=3.5; }
+  } else {
+    for(let i=0;i<bufferSize;i++) data[i]=Math.random()*2-1;
+  }
+  return buffer;
+}
+function toggleAmbient(type){
+  initAudio();
+  if(audioNodes[type]){
+    try{audioNodes[type].source.stop();}catch(e){}
+    delete audioNodes[type];
+    renderView(); return;
+  }
+  Object.keys(audioNodes).forEach(k=>{ try{audioNodes[k].source.stop();}catch(e){} delete audioNodes[k]; });
+  const source=audioCtx.createBufferSource();
+  source.buffer=makeNoiseBuffer(type==='brown');
+  source.loop=true;
+  const gain=audioCtx.createGain(); gain.gain.value=ambientVolume;
+  if(type==='rain'){
+    const filter=audioCtx.createBiquadFilter(); filter.type='bandpass'; filter.frequency.value=1200; filter.Q.value=0.6;
+    source.connect(filter); filter.connect(gain);
+  } else {
+    source.connect(gain);
+  }
+  gain.connect(audioCtx.destination);
+  source.start();
+  audioNodes[type]={source,gain};
+  renderView();
+}
+function setVolume(val){
+  ambientVolume=val/100;
+  Object.values(audioNodes).forEach(n=>n.gain.gain.value=ambientVolume);
+}
+
+// ══════════════════════════════════════════════
+// MUSIC VIEW
+// ══════════════════════════════════════════════
+function renderMusic(){
+  const types=[{id:'rain',icon:'🌧',label:'Rain'},{id:'white',icon:'📻',label:'White Noise'},{id:'brown',icon:'🌊',label:'Brown Noise'}];
+  const amb=types.map(t=>`<button class="ambient-btn ${audioNodes[t.id]?'playing':''}" onclick="toggleAmbient('${t.id}')"><span class="ambient-icon">${t.icon}</span><span>${t.label}</span></button>`).join('');
+  return `<div class="music-card">
+    <div class="tool-title">Ambient sounds</div>
+    <div class="ambient-grid">${amb}</div>
+    <div class="vol-row"><span class="vol-label">Volume</span><input type="range" class="vol-slider" min="0" max="100" value="${ambientVolume*100}" onchange="setVolume(this.value)"></div>
+  </div>
+  <div class="music-card">
+    <div class="tool-title">Lofi study playlist</div>
+    <div class="yt-block">
+      <div class="yt-label">Lofi Beats — Study Mix 1</div>
+      <div class="yt-embed"><iframe width="100%" height="220" src="https://www.youtube.com/embed/3Zmk5G6h-qo" title="Lofi study mix 1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+    </div>
+    <div class="yt-block">
+      <div class="yt-label">Lofi Beats — Study Mix 2</div>
+      <div class="yt-embed"><iframe width="100%" height="220" src="https://www.youtube.com/embed/O5f0pIlCKww" title="Lofi study mix 2" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+    </div>
+  </div>`;
+}
+</script>
+</body>
+</html>
