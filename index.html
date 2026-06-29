@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
 <title>CA Study Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:wght@400;500&display=swap" rel="stylesheet">
@@ -13,12 +14,27 @@
   --text:#1a1816;--text2:#5a5650;--text3:#9a958e;
   --accent:#2d6a4f;--accent2:#40916c;--accent-bg:#e8f5ee;
   --warn:#b5451b;--warn-bg:#fdf0eb;--amber:#8b5a00;--amber-bg:#fff8e6;
+  --badge-g1-bg:#e8f5ee;--badge-g1-text:#2d6a4f;--badge-g2-bg:#eaf0f9;--badge-g2-text:#1d4e89;
   --radius:10px;--radius-lg:16px;
+}
+[data-theme="dark"]{
+  --bg:#14171a;--surface:#1c2024;--surface2:#242830;--border:#2c3138;--border2:#3a4047;
+  --text:#e8e6e1;--text2:#aaa6a0;--text3:#75726c;
+  --accent:#4caf7d;--accent2:#6cc99a;--accent-bg:#1b2f25;
+  --warn:#e08a64;--warn-bg:#3a2419;--amber:#e3b659;--amber-bg:#3a2f15;
+  --badge-g1-bg:#1b2f25;--badge-g1-text:#6cc99a;--badge-g2-bg:#1a2533;--badge-g2-text:#7fb0e8;
 }
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6}
 
+/* ── THEME TOGGLE ── */
+.theme-toggle{display:flex;gap:3px;background:var(--surface2);border-radius:8px;padding:2px;width:fit-content}
+.theme-btn{border:none;background:none;cursor:pointer;font-size:12px;padding:4px 9px;border-radius:6px;color:var(--text3);line-height:1;font-family:'Inter',sans-serif}
+.theme-btn.active{background:var(--surface);color:var(--accent)}
+
 /* ── SETUP ── */
-#setup-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#e8f5ee 0%,#f8f7f4 50%,#e8f0f9 100%);padding:2rem}
+#setup-screen{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#e8f5ee 0%,#f8f7f4 50%,#e8f0f9 100%);padding:2rem}
+[data-theme="dark"] #setup-screen{background:linear-gradient(135deg,#15211c 0%,#14171a 50%,#141b24 100%)}
+.setup-theme-toggle{position:absolute;top:1.25rem;right:1.25rem}
 .setup-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2.75rem;max-width:500px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,0.08)}
 .setup-logo{font-family:'Lora',serif;font-size:12px;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:1.5rem}
 .setup-title{font-family:'Lora',serif;font-size:28px;font-weight:500;color:var(--text);line-height:1.3;margin-bottom:.4rem}
@@ -42,15 +58,19 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .bg-wrap{position:fixed;inset:0;z-index:0}
 .bg-img{width:100%;height:100%;object-fit:cover;filter:brightness(.32) saturate(.8)}
 .bg-overlay{position:absolute;inset:0;background:rgba(245,242,236,.89)}
+[data-theme="dark"] .bg-overlay{background:rgba(20,23,26,.92)}
 .app-layout{position:relative;z-index:1;display:flex;min-height:100vh}
 
 /* ── SIDEBAR ── */
 .sidebar{width:264px;min-height:100vh;background:rgba(255,255,255,.93);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto}
+[data-theme="dark"] .sidebar{background:rgba(28,32,36,.93)}
 .sidebar-header{padding:1.1rem 1.1rem .7rem;border-bottom:1px solid var(--border)}
 .sidebar-logo{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:2px}
 .sidebar-title{font-family:'Lora',serif;font-size:15px;font-weight:500;color:var(--text);line-height:1.3}
 .sidebar-meta{font-size:11px;color:var(--text3);margin-top:2px}
-.sidebar-settings-btn{font-size:10px;color:var(--accent);cursor:pointer;margin-top:4px;background:none;border:none;padding:0;font-family:'Inter',sans-serif;text-decoration:underline}
+.sidebar-row2{display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:8px}
+.sidebar-settings-btn{font-size:10px;color:var(--accent);cursor:pointer;background:none;border:none;padding:0;font-family:'Inter',sans-serif;text-decoration:underline}
+.sync-status{font-size:10px;color:var(--text3);margin-top:6px}
 .sidebar-nav{padding:.6rem .6rem 0;flex:1}
 .nav-label{font-size:10px;font-weight:500;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;padding:0 .5rem;margin-bottom:.2rem;margin-top:.6rem}
 .nav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;transition:background .15s;font-size:13px;color:var(--text2);border:none;background:none;width:100%;text-align:left}
@@ -69,6 +89,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 /* ── MAIN ── */
 .main{flex:1;padding:1.5rem;min-height:100vh;overflow-y:auto}
 .section-card{background:rgba(255,255,255,.94);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem}
+[data-theme="dark"] .section-card{background:rgba(28,32,36,.94)}
 .section-title{font-family:'Lora',serif;font-size:18px;font-weight:500;color:var(--text);margin-bottom:.25rem}
 .section-sub{font-size:12px;color:var(--text3);margin-bottom:1rem}
 
@@ -85,8 +106,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .progress-bar{height:100%;background:var(--accent2);border-radius:3px;transition:width .4s}
 .subj-pct{font-size:12px;color:var(--text2);min-width:32px;text-align:right}
 .tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500}
-.badge-g1{background:#e8f5ee;color:#2d6a4f}
-.badge-g2{background:#eaf0f9;color:#1d4e89}
+.badge-g1{background:var(--badge-g1-bg);color:var(--badge-g1-text)}
+.badge-g2{background:var(--badge-g2-bg);color:var(--badge-g2-text)}
 
 /* ── SUBJECT TRACKER ── */
 .subject-header{display:flex;align-items:flex-start;gap:.75rem;margin-bottom:1rem}
@@ -113,6 +134,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .unit-row:last-child{border-bottom:none}
 .unit-name{font-size:12px;color:var(--text2);flex:1}
 .notes-input{width:100%;padding:.45rem .875rem;border:none;border-top:1px solid var(--border);font-size:12px;color:var(--text2);background:rgba(242,240,236,.6);font-family:'Inter',sans-serif;outline:none;resize:none}
+[data-theme="dark"] .notes-input{background:rgba(36,40,48,.6)}
 
 /* ── SESSIONS ── */
 .session-item{display:flex;align-items:center;gap:.75rem;padding:.5rem .75rem;border-bottom:1px solid var(--border);font-size:12px}
@@ -125,6 +147,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 /* ── TOOLS ── */
 .tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
 .tool-card{background:rgba(255,255,255,.94);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem}
+[data-theme="dark"] .tool-card{background:rgba(28,32,36,.94)}
 .tool-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:.875rem}
 .clock-display{font-family:'Lora',serif;font-size:46px;font-weight:300;color:var(--text);text-align:center;letter-spacing:.04em;margin:.7rem 0}
 .clock-sub{font-size:11px;color:var(--text3);text-align:center;margin-bottom:.875rem}
@@ -134,7 +157,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .btn-tool.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
 .btn-tool.primary:hover{background:var(--accent2)}
 .log-sel{width:100%;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);font-size:12px;font-family:'Inter',sans-serif;color:var(--text);background:var(--bg);outline:none;margin-bottom:.45rem}
-/* Pomodoro */
 .pomo-mode{display:flex;gap:.35rem;margin-bottom:.8rem;justify-content:center}
 .pomo-tab{padding:5px 10px;border-radius:20px;font-size:11px;cursor:pointer;border:1px solid var(--border2);background:none;font-family:'Inter',sans-serif;color:var(--text2);transition:all .15s}
 .pomo-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
@@ -154,6 +176,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
 /* ── MUSIC ── */
 .music-card{background:rgba(255,255,255,.94);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem}
+[data-theme="dark"] .music-card{background:rgba(28,32,36,.94)}
 .ambient-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;margin-bottom:.875rem}
 .ambient-btn{padding:.6rem .45rem;border:1px solid var(--border2);border-radius:8px;background:var(--surface);cursor:pointer;font-size:11px;color:var(--text2);font-family:'Inter',sans-serif;text-align:center;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:3px}
 .ambient-btn:hover{background:var(--surface2)}
@@ -176,9 +199,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .unflag-btn:hover{color:var(--warn);border-color:var(--warn)}
 
 /* ── MODAL (settings) ── */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;display:flex;align-items:center;justify-content:center}
-.modal-card{background:var(--surface);border-radius:var(--radius-lg);padding:2rem;max-width:440px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.15)}
-.modal-title{font-family:'Lora',serif;font-size:18px;font-weight:500;margin-bottom:1.25rem}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:flex;align-items:center;justify-content:center}
+.modal-card{background:var(--surface);border-radius:var(--radius-lg);padding:2rem;max-width:440px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.25)}
+.modal-title{font-family:'Lora',serif;font-size:18px;font-weight:500;margin-bottom:1.25rem;color:var(--text)}
 .modal-field{margin-bottom:.875rem}
 .modal-field label{display:block;font-size:11px;font-weight:500;color:var(--text2);margin-bottom:5px;letter-spacing:.04em;text-transform:uppercase}
 .modal-field input,.modal-field select{width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;font-family:'Inter',sans-serif;color:var(--text);background:var(--bg);outline:none}
@@ -191,15 +214,41 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .modal-warn{font-size:11px;color:var(--warn);margin-top:.5rem}
 
 /* ── TOAST ── */
-.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--text);color:#fff;padding:.75rem 1.25rem;border-radius:var(--radius);font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--text);color:var(--bg);padding:.75rem 1.25rem;border-radius:var(--radius);font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.show{opacity:1}
 .empty{font-size:13px;color:var(--text3);text-align:center;padding:2rem}
 </style>
 </head>
 <body>
 
+<!-- ══ FIREBASE (Firestore sync — works once hosted/downloaded outside Claude's preview sandbox) ══ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+  const firebaseConfig = {
+    apiKey: "AIzaSyDYm2K1-0B5V5FtP17w6aVhzeiYHD7DSLM",
+    authDomain: "ca-study-tracker-994ea.firebaseapp.com",
+    projectId: "ca-study-tracker-994ea",
+    storageBucket: "ca-study-tracker-994ea.firebasestorage.app",
+    messagingSenderId: "902267697726",
+    appId: "1:902267697726:web:65e1f0ab1a8e60c1feaf6f"
+  };
+  try{
+    const app=initializeApp(firebaseConfig);
+    const db=getFirestore(app);
+    window.__fb={db,doc,getDoc,setDoc,ready:true};
+  }catch(e){
+    window.__fb={ready:false};
+  }
+</script>
+
 <!-- ══ SETUP SCREEN ══ -->
 <div id="setup-screen">
+  <div class="theme-toggle setup-theme-toggle" id="theme-toggle-setup">
+    <button class="theme-btn" data-t="light" onclick="setTheme('light')" aria-label="Light mode">☀</button>
+    <button class="theme-btn" data-t="dark" onclick="setTheme('dark')" aria-label="Dark mode">☾</button>
+    <button class="theme-btn" data-t="system" onclick="setTheme('system')" aria-label="Use system setting">◐</button>
+  </div>
   <div class="setup-card">
     <div class="setup-logo">Institute of Chartered Accountants of India</div>
     <div class="setup-title" id="setup-title">CA Study Tracker</div>
@@ -233,14 +282,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       <label>Exam attempt</label>
       <select id="setup-attempt" onchange="checkSetup()">
         <option value="">— Select attempt —</option>
-        <option value="Nov 2026">Nov 2026</option>
-        <option value="May 2027">May 2027</option>
-        <option value="Nov 2027">Nov 2027</option>
       </select>
     </div>
 
     <button class="btn-primary" id="setup-btn" onclick="startApp()" disabled>Begin tracking →</button>
-    <div class="setup-note">Progress is saved locally in your browser and synced to cloud if available.</div>
+    <div class="setup-note">Progress is saved locally in your browser and synced to the cloud if available.</div>
   </div>
 </div>
 
@@ -256,7 +302,15 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
         <div class="sidebar-logo" id="sb-logo">CA Study Tracker</div>
         <div class="sidebar-title" id="sb-name">Dashboard</div>
         <div class="sidebar-meta" id="sb-meta"></div>
-        <button class="sidebar-settings-btn" onclick="openSettings()">⚙ Change settings</button>
+        <div class="sidebar-row2">
+          <button class="sidebar-settings-btn" onclick="openSettings()">⚙ Change settings</button>
+          <div class="theme-toggle" id="theme-toggle-sidebar">
+            <button class="theme-btn" data-t="light" onclick="setTheme('light')" aria-label="Light mode">☀</button>
+            <button class="theme-btn" data-t="dark" onclick="setTheme('dark')" aria-label="Dark mode">☾</button>
+            <button class="theme-btn" data-t="system" onclick="setTheme('system')" aria-label="Use system setting">◐</button>
+          </div>
+        </div>
+        <div class="sync-status" id="sync-status"></div>
       </div>
       <div class="sidebar-nav" id="sidebar-nav"></div>
       <div class="sidebar-bottom">
@@ -297,11 +351,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     </div>
     <div class="modal-field">
       <label>Exam attempt</label>
-      <select id="m-attempt">
-        <option value="Nov 2026">Nov 2026</option>
-        <option value="May 2027">May 2027</option>
-        <option value="Nov 2027">Nov 2027</option>
-      </select>
+      <select id="m-attempt"></select>
     </div>
     <div class="modal-warn">Changing name, group or attempt switches to that profile's save file. Your current progress isn't lost — switch back anytime to see it again.</div>
     <div class="modal-btns">
@@ -317,7 +367,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 // ══════════════════════════════════════════════
 // SUBJECT DATA
 // ══════════════════════════════════════════════
-const EXAM_DATES={'Nov 2026':new Date('2026-11-03'),'May 2027':new Date('2027-05-03'),'Nov 2027':new Date('2027-11-01')};
+const EXAM_DATES={
+  Final:{'Nov 2026':new Date('2026-11-03'),'May 2027':new Date('2027-05-03'),'Nov 2027':new Date('2027-11-01')},
+  Inter:{'Sep 2026':new Date('2026-09-01'),'Jan 2027':new Date('2027-01-01'),'May 2027':new Date('2027-05-01')}
+};
+const ATTEMPT_OPTIONS={Final:['Nov 2026','May 2027','Nov 2027'],Inter:['Sep 2026','Jan 2027','May 2027']};
 
 const FINAL_SUBJECTS={
   FR:{name:'Financial Reporting',group:1,modules:[
@@ -500,18 +554,35 @@ const INTER_SUBJECTS={
 let userName='',userAttempt='',userCourse='Final',userGroup='Both';
 let currentView='dashboard';
 let progress={},sessions=[],dailyGoal=6,streak=0,lastStudyDate=null;
+let theme='system';
 let expandedChapters=new Set();
 let swRunning=false,swStart=0,swElapsed=0,swTick=null,swSubject='',swChapter='',swChapterName='';
 let pomoRunning=false,pomoTick=null,pomoMode='focus';
 let pomoFocusMins=25,pomoBreakMins=5,pomoLongMins=15,pomoSecsLeft=25*60,pomoCount=0;
 let audioCtx=null,audioNodes={},ambientVolume=0.3;
-// modal state
 let mCourse='Final',mGroup='Both';
 
 // ══════════════════════════════════════════════
-// STORAGE — auto-detect cloud vs localStorage
-// (key is built from course + name + group + attempt, so each
-//  distinct profile gets its own save file)
+// THEME
+// ══════════════════════════════════════════════
+function applyTheme(){
+  let effective=theme;
+  if(theme==='system') effective=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+  document.documentElement.setAttribute('data-theme',effective);
+}
+function renderThemeToggle(){
+  document.querySelectorAll('.theme-btn').forEach(b=>b.classList.toggle('active',b.dataset.t===theme));
+}
+function setTheme(t){
+  theme=t; applyTheme(); renderThemeToggle();
+  if(userName&&userAttempt) saveData();
+}
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{ if(theme==='system') applyTheme(); });
+
+// ══════════════════════════════════════════════
+// STORAGE — Firestore (cloud, cross-device) → window.storage (Claude cloud)
+// → localStorage (always-on local cache/fallback)
+// Key = course + name + group + attempt, so each profile gets its own record.
 // ══════════════════════════════════════════════
 function storageKey(){
   const n=userName.toLowerCase().trim().replace(/\s+/g,'_');
@@ -519,38 +590,60 @@ function storageKey(){
   const a=userAttempt.replace(/\s+/g,'').toLowerCase();
   return `ca_tracker_${userCourse.toLowerCase()}_${n}_${g}_${a}`;
 }
+function setSyncStatus(text){ const el=document.getElementById('sync-status'); if(el) el.textContent=text; }
 
 async function saveData(){
-  const data=JSON.stringify({progress,sessions,dailyGoal,streak,lastStudyDate,pomoFocusMins,pomoBreakMins,pomoLongMins});
+  const data={progress,sessions,dailyGoal,streak,lastStudyDate,pomoFocusMins,pomoBreakMins,pomoLongMins,theme};
+  const json=JSON.stringify(data);
   const key=storageKey();
-  try{ if(window.storage){await window.storage.set(key,data,false);return;} }catch(e){}
-  try{ localStorage.setItem(key,data); }catch(e){}
+  try{ localStorage.setItem(key,json); }catch(e){}
+  try{ if(window.storage) await window.storage.set(key,json,false); }catch(e){}
+  try{
+    if(window.__fb&&window.__fb.ready){
+      await window.__fb.setDoc(window.__fb.doc(window.__fb.db,'users',key),
+        {...data,name:userName,course:userCourse,group:userGroup,attempt:userAttempt,lastSynced:new Date().toISOString()},
+        {merge:true});
+      setSyncStatus('Synced to cloud');
+      return;
+    }
+  }catch(e){ setSyncStatus('Cloud sync unavailable — saved locally'); return; }
+  setSyncStatus('Saved locally');
 }
 
 async function loadData(){
   const key=storageKey();
   try{
-    if(window.storage){
-      const r=await window.storage.get(key,false);
-      if(r&&r.value){parseData(r.value);return;}
+    if(window.__fb&&window.__fb.ready){
+      const snap=await window.__fb.getDoc(window.__fb.doc(window.__fb.db,'users',key));
+      if(snap.exists()){ parseData(snap.data()); setSyncStatus('Loaded from cloud'); return; }
     }
   }catch(e){}
-  try{
-    const r=localStorage.getItem(key);
-    if(r)parseData(r);
-  }catch(e){}
+  try{ if(window.storage){ const r=await window.storage.get(key,false); if(r&&r.value){ parseData(r.value); setSyncStatus('Loaded locally'); return; } } }catch(e){}
+  try{ const r=localStorage.getItem(key); if(r){ parseData(r); setSyncStatus('Loaded locally'); return; } }catch(e){}
+  setSyncStatus('New profile');
 }
 
 function parseData(raw){
   try{
-    const d=JSON.parse(raw);
+    const d=typeof raw==='string'?JSON.parse(raw):raw;
     progress=d.progress||{};sessions=d.sessions||[];
     dailyGoal=d.dailyGoal||6;streak=d.streak||0;lastStudyDate=d.lastStudyDate||null;
     if(d.pomoFocusMins)pomoFocusMins=d.pomoFocusMins;
     if(d.pomoBreakMins)pomoBreakMins=d.pomoBreakMins;
     if(d.pomoLongMins)pomoLongMins=d.pomoLongMins;
+    if(d.theme)theme=d.theme;
     pomoSecsLeft=pomoFocusMins*60;
   }catch(e){}
+}
+
+// ══════════════════════════════════════════════
+// ATTEMPT OPTIONS (course-dependent)
+// ══════════════════════════════════════════════
+function populateAttemptOptions(selectId,course,preserve){
+  const sel=document.getElementById(selectId); if(!sel)return;
+  const prev=sel.value;
+  sel.innerHTML='<option value="">— Select attempt —</option>'+ATTEMPT_OPTIONS[course].map(a=>`<option value="${a}">${a}</option>`).join('');
+  if(preserve&&ATTEMPT_OPTIONS[course].includes(prev)) sel.value=prev;
 }
 
 // ══════════════════════════════════════════════
@@ -570,6 +663,7 @@ function setCourse(c){
     grpBoth.style.display=''; grpTwo.style.display='';
     setGroup('Both');
   }
+  populateAttemptOptions('setup-attempt',c,false);
   checkSetup();
 }
 
@@ -598,6 +692,7 @@ async function startApp(){
   updateSidebarHeader();
   updateCountdown();
   await loadData();
+  applyTheme(); renderThemeToggle();
   initProgress();
   buildSidebar();
   renderView();
@@ -615,6 +710,7 @@ function updateSidebarHeader(){
 function openSettings(){
   mCourse=userCourse; mGroup=userGroup;
   document.getElementById('m-name').value=userName;
+  populateAttemptOptions('m-attempt',mCourse,false);
   document.getElementById('m-attempt').value=userAttempt;
   mSetCourse(mCourse,true); mSetGroup(mGroup,true);
   document.getElementById('settings-modal').style.display='flex';
@@ -628,6 +724,7 @@ function mSetCourse(c,silent){
   const both=document.getElementById('m-grp-both'), two=document.getElementById('m-grp-2');
   if(c==='Inter'){ both.style.display='none'; two.style.display='none'; if(!silent)mSetGroup('Group 1'); }
   else { both.style.display=''; two.style.display=''; if(!silent)mSetGroup('Both'); }
+  populateAttemptOptions('m-attempt',c,true);
 }
 function mSetGroup(g){
   mGroup=g;
@@ -645,6 +742,7 @@ async function applySettings(){
   closeSettings();
   progress={}; sessions=[]; streak=0; lastStudyDate=null; dailyGoal=6; expandedChapters=new Set();
   await loadData();
+  applyTheme(); renderThemeToggle();
   initProgress();
   updateSidebarHeader();
   updateCountdown();
@@ -704,10 +802,10 @@ function buildSidebar(){
 }
 
 // ══════════════════════════════════════════════
-// COUNTDOWN
+// COUNTDOWN (date used only for the day-count — never displayed)
 // ══════════════════════════════════════════════
 function updateCountdown(){
-  const date=EXAM_DATES[userAttempt]; if(!date)return;
+  const dates=EXAM_DATES[userCourse]; const date=dates&&dates[userAttempt]; if(!date)return;
   const diff=Math.ceil((date-new Date())/(1000*60*60*24));
   document.getElementById('cd-days').textContent=diff>0?diff:0;
   document.getElementById('cd-attempt').textContent=userAttempt;
@@ -716,11 +814,8 @@ function updateCountdown(){
 // ══════════════════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════════════════
-function showView(v){ currentView=v; renderView(); highlightNav(); }
-function showSubject(s){ currentView='subject_'+s; renderView(); highlightNav(); }
-function highlightNav(){
-  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
-}
+function showView(v){ currentView=v; renderView(); }
+function showSubject(s){ currentView='subject_'+s; renderView(); }
 function renderView(){
   const mc=document.getElementById('main-content');
   if(currentView==='dashboard') mc.innerHTML=renderDashboard();
@@ -754,10 +849,6 @@ function findChapter(chId){ return Object.values(getActiveSubjects()).flatMap(s=
 
 // ══════════════════════════════════════════════
 // CHAPTER ↔ UNIT RELATIONSHIP
-// • Marking a chapter "Completed" marks every unit under it complete.
-// • Marking every unit under a chapter complete marks the chapter complete.
-// • Any unit progress short of "all complete" puts the chapter at
-//   "In progress" (or "Not started" if nothing has begun).
 // ══════════════════════════════════════════════
 function recalcChapterFromUnits(chId){
   const ch=findChapter(chId); if(!ch||!ch.units)return;
@@ -777,14 +868,12 @@ function updateStatus(chId,val){
   else if(p.status===0 && !(ch&&ch.units)){ p.pct=0; }
   saveData(); renderView(); buildSidebar();
 }
-
 function updatePct(chId,val){
   const p=progress[chId]; if(!p)return;
   p.pct=parseInt(val,10);
   p.status=p.pct>=100?2:(p.pct>0?1:0);
   saveData(); renderView(); buildSidebar();
 }
-
 function updateUnitStatus(chId,idx,val){
   const ch=findChapter(chId); const p=progress[chId]; if(!p)return;
   if(!p.units) p.units=ch.units.map(()=>({status:0,pct:0}));
@@ -793,7 +882,6 @@ function updateUnitStatus(chId,idx,val){
   recalcChapterFromUnits(chId);
   saveData(); renderView(); buildSidebar();
 }
-
 function updateUnitPct(chId,idx,val){
   const ch=findChapter(chId); const p=progress[chId]; if(!p)return;
   if(!p.units) p.units=ch.units.map(()=>({status:0,pct:0}));
@@ -802,7 +890,6 @@ function updateUnitPct(chId,idx,val){
   recalcChapterFromUnits(chId);
   saveData(); renderView(); buildSidebar();
 }
-
 function toggleChapter(chId){
   if(expandedChapters.has(chId)) expandedChapters.delete(chId); else expandedChapters.add(chId);
   renderView();
@@ -871,7 +958,7 @@ function renderDashboard(){
     </div>
     <div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem">
       <span style="font-size:12px;font-weight:500;color:var(--text2)">Today's goal</span>
-      <span style="font-size:11px;color:var(--text3);display:flex;align-items:center;gap:4px">${todayHrs}h / <input type="number" min="1" max="16" step="0.5" value="${dailyGoal}" style="width:44px;padding:2px 4px;border:1px solid var(--border2);border-radius:4px;font-size:11px;font-family:'Inter',sans-serif" onchange="setGoal(this.value)">h</span>
+      <span style="font-size:11px;color:var(--text3);display:flex;align-items:center;gap:4px">${todayHrs}h / <input type="number" min="1" max="16" step="0.5" value="${dailyGoal}" style="width:44px;padding:2px 4px;border:1px solid var(--border2);border-radius:4px;font-size:11px;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text)" onchange="setGoal(this.value)">h</span>
     </div>
     <div style="height:6px;background:var(--surface2);border-radius:3px;overflow:hidden"><div style="height:100%;width:${todayPct}%;background:var(--accent2);border-radius:3px;transition:width .4s"></div></div></div>
   </div>
@@ -987,17 +1074,11 @@ function updateSwDisplay(){
   if(el) el.textContent=fmtTime(swElapsed+(swRunning?Date.now()-swStart:0));
 }
 function swToggle(){
-  if(swRunning){
-    swElapsed+=Date.now()-swStart; swRunning=false; clearInterval(swTick);
-  } else {
-    swStart=Date.now(); swRunning=true; swTick=setInterval(updateSwDisplay,1000);
-  }
+  if(swRunning){ swElapsed+=Date.now()-swStart; swRunning=false; clearInterval(swTick); }
+  else { swStart=Date.now(); swRunning=true; swTick=setInterval(updateSwDisplay,1000); }
   renderView();
 }
-function swReset(){
-  clearInterval(swTick); swRunning=false; swElapsed=0; swStart=0;
-  renderView();
-}
+function swReset(){ clearInterval(swTick); swRunning=false; swElapsed=0; swStart=0; renderView(); }
 function updateStreak(){
   const today=new Date().toDateString();
   if(lastStudyDate===today) return;
@@ -1024,7 +1105,7 @@ function quickStart(code,chId,chName){
 }
 
 // ══════════════════════════════════════════════
-// POMODORO (focus / break / long-break all customizable)
+// POMODORO
 // ══════════════════════════════════════════════
 function currentPomoTotal(){ return (pomoMode==='focus'?pomoFocusMins:pomoMode==='break'?pomoBreakMins:pomoLongMins)*60; }
 function setPomoMode(mode){
@@ -1039,22 +1120,15 @@ function updatePomoDisplay(){
   if(arc){ const r=60,circ=2*Math.PI*r; arc.setAttribute('stroke-dashoffset',circ*(pomoSecsLeft/currentPomoTotal())); }
 }
 function pomoToggle(){
-  if(pomoRunning){
-    clearInterval(pomoTick); pomoRunning=false;
-  } else {
+  if(pomoRunning){ clearInterval(pomoTick); pomoRunning=false; }
+  else {
     pomoRunning=true;
     pomoTick=setInterval(()=>{
       pomoSecsLeft--;
       if(pomoSecsLeft<=0){
         clearInterval(pomoTick); pomoRunning=false;
-        if(pomoMode==='focus'){
-          pomoCount++;
-          toast('Focus session done — take a break ☕');
-          setPomoMode(pomoCount%4===0?'long':'break');
-        } else {
-          toast('Break over — back to focus 📚');
-          setPomoMode('focus');
-        }
+        if(pomoMode==='focus'){ pomoCount++; toast('Focus session done — take a break'); setPomoMode(pomoCount%4===0?'long':'break'); }
+        else { toast('Break over — back to focus'); setPomoMode('focus'); }
         return;
       }
       updatePomoDisplay();
@@ -1062,10 +1136,7 @@ function pomoToggle(){
   }
   renderView();
 }
-function pomoReset(){
-  clearInterval(pomoTick); pomoRunning=false; pomoSecsLeft=currentPomoTotal();
-  renderView();
-}
+function pomoReset(){ clearInterval(pomoTick); pomoRunning=false; pomoSecsLeft=currentPomoTotal(); renderView(); }
 function adjPomo(type,delta){
   if(type==='focus') pomoFocusMins=Math.max(5,Math.min(120,pomoFocusMins+delta));
   if(type==='break') pomoBreakMins=Math.max(1,Math.min(30,pomoBreakMins+delta));
@@ -1125,27 +1196,15 @@ function renderTools(){
       <div class="pomo-settings">
         <div class="pomo-setting-field">
           <div class="pomo-setting-label">Focus</div>
-          <div class="pomo-setting-row">
-            <button class="pomo-adj" onclick="adjPomo('focus',-5)">−</button>
-            <span class="pomo-val">${pomoFocusMins}m</span>
-            <button class="pomo-adj" onclick="adjPomo('focus',5)">+</button>
-          </div>
+          <div class="pomo-setting-row"><button class="pomo-adj" onclick="adjPomo('focus',-5)">−</button><span class="pomo-val">${pomoFocusMins}m</span><button class="pomo-adj" onclick="adjPomo('focus',5)">+</button></div>
         </div>
         <div class="pomo-setting-field">
           <div class="pomo-setting-label">Break</div>
-          <div class="pomo-setting-row">
-            <button class="pomo-adj" onclick="adjPomo('break',-1)">−</button>
-            <span class="pomo-val">${pomoBreakMins}m</span>
-            <button class="pomo-adj" onclick="adjPomo('break',1)">+</button>
-          </div>
+          <div class="pomo-setting-row"><button class="pomo-adj" onclick="adjPomo('break',-1)">−</button><span class="pomo-val">${pomoBreakMins}m</span><button class="pomo-adj" onclick="adjPomo('break',1)">+</button></div>
         </div>
         <div class="pomo-setting-field">
           <div class="pomo-setting-label">Long break</div>
-          <div class="pomo-setting-row">
-            <button class="pomo-adj" onclick="adjPomo('long',-5)">−</button>
-            <span class="pomo-val">${pomoLongMins}m</span>
-            <button class="pomo-adj" onclick="adjPomo('long',5)">+</button>
-          </div>
+          <div class="pomo-setting-row"><button class="pomo-adj" onclick="adjPomo('long',-5)">−</button><span class="pomo-val">${pomoLongMins}m</span><button class="pomo-adj" onclick="adjPomo('long',5)">+</button></div>
         </div>
       </div>
     </div>
@@ -1157,28 +1216,20 @@ function renderTools(){
 }
 
 // ══════════════════════════════════════════════
-// AMBIENT SOUNDS (Web Audio noise generators)
+// AMBIENT SOUNDS
 // ══════════════════════════════════════════════
 function initAudio(){ if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }
 function makeNoiseBuffer(brown){
   const bufferSize=2*audioCtx.sampleRate;
   const buffer=audioCtx.createBuffer(1,bufferSize,audioCtx.sampleRate);
   const data=buffer.getChannelData(0);
-  if(brown){
-    let last=0;
-    for(let i=0;i<bufferSize;i++){ const white=Math.random()*2-1; data[i]=(last+0.02*white)/1.02; last=data[i]; data[i]*=3.5; }
-  } else {
-    for(let i=0;i<bufferSize;i++) data[i]=Math.random()*2-1;
-  }
+  if(brown){ let last=0; for(let i=0;i<bufferSize;i++){ const white=Math.random()*2-1; data[i]=(last+0.02*white)/1.02; last=data[i]; data[i]*=3.5; } }
+  else { for(let i=0;i<bufferSize;i++) data[i]=Math.random()*2-1; }
   return buffer;
 }
 function toggleAmbient(type){
   initAudio();
-  if(audioNodes[type]){
-    try{audioNodes[type].source.stop();}catch(e){}
-    delete audioNodes[type];
-    renderView(); return;
-  }
+  if(audioNodes[type]){ try{audioNodes[type].source.stop();}catch(e){} delete audioNodes[type]; renderView(); return; }
   Object.keys(audioNodes).forEach(k=>{ try{audioNodes[k].source.stop();}catch(e){} delete audioNodes[k]; });
   const source=audioCtx.createBufferSource();
   source.buffer=makeNoiseBuffer(type==='brown');
@@ -1187,18 +1238,13 @@ function toggleAmbient(type){
   if(type==='rain'){
     const filter=audioCtx.createBiquadFilter(); filter.type='bandpass'; filter.frequency.value=1200; filter.Q.value=0.6;
     source.connect(filter); filter.connect(gain);
-  } else {
-    source.connect(gain);
-  }
+  } else { source.connect(gain); }
   gain.connect(audioCtx.destination);
   source.start();
   audioNodes[type]={source,gain};
   renderView();
 }
-function setVolume(val){
-  ambientVolume=val/100;
-  Object.values(audioNodes).forEach(n=>n.gain.gain.value=ambientVolume);
-}
+function setVolume(val){ ambientVolume=val/100; Object.values(audioNodes).forEach(n=>n.gain.gain.value=ambientVolume); }
 
 // ══════════════════════════════════════════════
 // MUSIC VIEW
@@ -1223,6 +1269,13 @@ function renderMusic(){
     </div>
   </div>`;
 }
+
+// ══════════════════════════════════════════════
+// INIT (runs once, on page load)
+// ══════════════════════════════════════════════
+populateAttemptOptions('setup-attempt','Final',false);
+applyTheme();
+renderThemeToggle();
 </script>
 </body>
 </html>
